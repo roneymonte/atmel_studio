@@ -1,0 +1,463 @@
+   1               		.file	"test_lcd.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	wait_until_key_pressed
+  12               	wait_until_key_pressed:
+  13               	.LFB1:
+  14               		.file 1 "test_lcd.c"
+   1:test_lcd.c    **** /*************************************************************************
+   2:test_lcd.c    **** Title:    testing output to a HD44780 based LCD display.
+   3:test_lcd.c    **** Author:   Peter Fleury  <pfleury@gmx.ch>  http://jump.to/fleury
+   4:test_lcd.c    **** File:     $Id: test_lcd.c,v 1.6 2004/12/10 13:53:59 peter Exp $
+   5:test_lcd.c    **** Software: AVR-GCC 3.3
+   6:test_lcd.c    **** Hardware: HD44780 compatible LCD text display
+   7:test_lcd.c    ****           ATS90S8515/ATmega if memory-mapped LCD interface is used
+   8:test_lcd.c    ****           any AVR with 7 free I/O pins if 4-bit IO port mode is used
+   9:test_lcd.c    **** **************************************************************************/
+  10:test_lcd.c    **** #include <stdlib.h>
+  11:test_lcd.c    **** #include <avr/io.h>
+  12:test_lcd.c    **** #include <avr/pgmspace.h>
+  13:test_lcd.c    **** #include "lcd.h"
+  14:test_lcd.c    **** 
+  15:test_lcd.c    **** 
+  16:test_lcd.c    **** /*
+  17:test_lcd.c    **** ** constant definitions
+  18:test_lcd.c    **** */
+  19:test_lcd.c    **** static const PROGMEM unsigned char copyRightChar[] =
+  20:test_lcd.c    **** {
+  21:test_lcd.c    **** 	0x07, 0x08, 0x13, 0x14, 0x14, 0x13, 0x08, 0x07,
+  22:test_lcd.c    **** 	0x00, 0x10, 0x08, 0x08, 0x08, 0x08, 0x10, 0x00
+  23:test_lcd.c    **** };
+  24:test_lcd.c    **** 
+  25:test_lcd.c    **** 
+  26:test_lcd.c    **** /*
+  27:test_lcd.c    **** ** function prototypes
+  28:test_lcd.c    **** */ 
+  29:test_lcd.c    **** void wait_until_key_pressed(void);
+  30:test_lcd.c    **** 
+  31:test_lcd.c    **** 
+  32:test_lcd.c    **** void wait_until_key_pressed(void)
+  33:test_lcd.c    **** {
+  15               		.loc 1 33 0
+  16               		.cfi_startproc
+  17               	/* prologue: function */
+  18               	/* frame size = 0 */
+  19               	/* stack size = 0 */
+  20               	.L__stack_usage = 0
+  21               	.L3:
+  34:test_lcd.c    ****     unsigned char temp1, temp2;
+  35:test_lcd.c    ****     unsigned int i;
+  36:test_lcd.c    ****     
+  37:test_lcd.c    ****     do {
+  38:test_lcd.c    ****         temp1 = PIND;                  // read input
+  22               		.loc 1 38 0
+  23 0000 89B1      		in r24,0x9
+  24               	.LVL0:
+  39:test_lcd.c    ****         for(i=0;i<65535;i++);
+  40:test_lcd.c    ****         temp2 = PIND;                  // read input
+  25               		.loc 1 40 0
+  26 0002 99B1      		in r25,0x9
+  27               	.LVL1:
+  41:test_lcd.c    ****         temp1 = (temp1 & temp2);       // debounce input
+  28               		.loc 1 41 0
+  29 0004 8923      		and r24,r25
+  30               	.LVL2:
+  42:test_lcd.c    ****     } while ( temp1 & _BV(PIND2) );
+  31               		.loc 1 42 0
+  32 0006 82FD      		sbrc r24,2
+  33 0008 00C0      		rjmp .L3
+  34               	.L5:
+  43:test_lcd.c    ****     
+  44:test_lcd.c    ****     loop_until_bit_is_set(PIND,PIND2);            /* wait until key is released */
+  35               		.loc 1 44 0
+  36 000a 4A9B      		sbis 0x9,2
+  37 000c 00C0      		rjmp .L5
+  38               	/* epilogue start */
+  45:test_lcd.c    **** }
+  39               		.loc 1 45 0
+  40 000e 0895      		ret
+  41               		.cfi_endproc
+  42               	.LFE1:
+  44               		.section	.rodata.str1.1,"aMS",@progbits,1
+  45               	.LC0:
+  46 0000 4C43 4420 		.string	"LCD Test Line 1\n"
+  46      5465 7374 
+  46      204C 696E 
+  46      6520 310A 
+  46      00
+  47               	.LC1:
+  48 0011 4C69 6E65 		.string	"Line 2"
+  48      2032 00
+  49               	.LC2:
+  50 0018 4375 724F 		.string	"CurOn"
+  50      6E00 
+  51               	.LC3:
+  52 001e 436F 7079 		.string	"Copyright: "
+  52      7269 6768 
+  52      743A 2000 
+  53               		.section	.text.startup,"ax",@progbits
+  54               	.global	main
+  56               	main:
+  57               	.LFB2:
+  46:test_lcd.c    **** 
+  47:test_lcd.c    **** 
+  48:test_lcd.c    **** int main(void)
+  49:test_lcd.c    **** {
+  58               		.loc 1 49 0
+  59               		.cfi_startproc
+  60 0000 CF93      		push r28
+  61               	.LCFI0:
+  62               		.cfi_def_cfa_offset 3
+  63               		.cfi_offset 28, -2
+  64 0002 DF93      		push r29
+  65               	.LCFI1:
+  66               		.cfi_def_cfa_offset 4
+  67               		.cfi_offset 29, -3
+  68 0004 CDB7      		in r28,__SP_L__
+  69 0006 DEB7      		in r29,__SP_H__
+  70               	.LCFI2:
+  71               		.cfi_def_cfa_register 28
+  72 0008 2797      		sbiw r28,7
+  73               	.LCFI3:
+  74               		.cfi_def_cfa_offset 11
+  75 000a 0FB6      		in __tmp_reg__,__SREG__
+  76 000c F894      		cli
+  77 000e DEBF      		out __SP_H__,r29
+  78 0010 0FBE      		out __SREG__,__tmp_reg__
+  79 0012 CDBF      		out __SP_L__,r28
+  80               	/* prologue: function */
+  81               	/* frame size = 7 */
+  82               	/* stack size = 9 */
+  83               	.L__stack_usage = 9
+  84               	.LVL3:
+  50:test_lcd.c    ****     char buffer[7];
+  51:test_lcd.c    ****     int  num=134;
+  52:test_lcd.c    ****     unsigned char i;
+  53:test_lcd.c    ****     
+  54:test_lcd.c    ****     
+  55:test_lcd.c    ****     DDRD &=~ (1 << PD2);        /* Pin PD2 input              */
+  85               		.loc 1 55 0
+  86 0014 5298      		cbi 0xa,2
+  56:test_lcd.c    ****     PORTD |= (1 << PD2);        /* Pin PD2 pull-up enabled    */
+  87               		.loc 1 56 0
+  88 0016 5A9A      		sbi 0xb,2
+  57:test_lcd.c    **** 
+  58:test_lcd.c    **** 
+  59:test_lcd.c    ****     /* initialize display, cursor off */
+  60:test_lcd.c    ****     lcd_init(LCD_DISP_ON);
+  89               		.loc 1 60 0
+  90 0018 8CE0      		ldi r24,lo8(12)
+  91 001a 0E94 0000 		call lcd_init
+  92               	.LVL4:
+  93               	.L11:
+  61:test_lcd.c    **** 
+  62:test_lcd.c    ****     for (;;) {                           /* loop forever */
+  63:test_lcd.c    ****         /* 
+  64:test_lcd.c    ****          * Test 1:  write text to display
+  65:test_lcd.c    ****          */
+  66:test_lcd.c    **** 
+  67:test_lcd.c    ****         /* clear display and home cursor */
+  68:test_lcd.c    ****         lcd_clrscr();
+  94               		.loc 1 68 0
+  95 001e 0E94 0000 		call lcd_clrscr
+  96               	.LVL5:
+  69:test_lcd.c    ****         
+  70:test_lcd.c    ****         /* put string to display (line 1) with linefeed */
+  71:test_lcd.c    ****         lcd_puts("LCD Test Line 1\n");
+  97               		.loc 1 71 0
+  98 0022 80E0      		ldi r24,lo8(.LC0)
+  99 0024 90E0      		ldi r25,hi8(.LC0)
+ 100 0026 0E94 0000 		call lcd_puts
+ 101               	.LVL6:
+  72:test_lcd.c    **** 
+  73:test_lcd.c    ****         /* cursor is now on second line, write second line */
+  74:test_lcd.c    ****         lcd_puts("Line 2");
+ 102               		.loc 1 74 0
+ 103 002a 80E0      		ldi r24,lo8(.LC1)
+ 104 002c 90E0      		ldi r25,hi8(.LC1)
+ 105 002e 0E94 0000 		call lcd_puts
+ 106               	.LVL7:
+  75:test_lcd.c    ****         
+  76:test_lcd.c    ****         /* move cursor to position 8 on line 2 */
+  77:test_lcd.c    ****         lcd_gotoxy(7,1);  
+ 107               		.loc 1 77 0
+ 108 0032 61E0      		ldi r22,lo8(1)
+ 109 0034 87E0      		ldi r24,lo8(7)
+ 110 0036 0E94 0000 		call lcd_gotoxy
+ 111               	.LVL8:
+  78:test_lcd.c    ****         
+  79:test_lcd.c    ****         /* write single char to display */
+  80:test_lcd.c    ****         lcd_putc(':');
+ 112               		.loc 1 80 0
+ 113 003a 8AE3      		ldi r24,lo8(58)
+ 114 003c 0E94 0000 		call lcd_putc
+ 115               	.LVL9:
+  81:test_lcd.c    ****         
+  82:test_lcd.c    ****         /* wait until push button PD2 (INT0) is pressed */
+  83:test_lcd.c    ****         wait_until_key_pressed();
+ 116               		.loc 1 83 0
+ 117 0040 0E94 0000 		call wait_until_key_pressed
+ 118               	.LVL10:
+  84:test_lcd.c    ****         
+  85:test_lcd.c    ****         
+  86:test_lcd.c    ****         /*
+  87:test_lcd.c    ****          * Test 2: use lcd_command() to turn on cursor
+  88:test_lcd.c    ****          */
+  89:test_lcd.c    ****         
+  90:test_lcd.c    ****         /* turn on cursor */
+  91:test_lcd.c    ****         lcd_command(LCD_DISP_ON_CURSOR);
+ 119               		.loc 1 91 0
+ 120 0044 8EE0      		ldi r24,lo8(14)
+ 121 0046 0E94 0000 		call lcd_command
+ 122               	.LVL11:
+  92:test_lcd.c    **** 
+  93:test_lcd.c    ****         /* put string */
+  94:test_lcd.c    ****         lcd_puts( "CurOn");
+ 123               		.loc 1 94 0
+ 124 004a 80E0      		ldi r24,lo8(.LC2)
+ 125 004c 90E0      		ldi r25,hi8(.LC2)
+ 126 004e 0E94 0000 		call lcd_puts
+ 127               	.LVL12:
+  95:test_lcd.c    ****         
+  96:test_lcd.c    ****         /* wait until push button PD2 (INT0) is pressed */
+  97:test_lcd.c    ****         wait_until_key_pressed();
+ 128               		.loc 1 97 0
+ 129 0052 0E94 0000 		call wait_until_key_pressed
+ 130               	.LVL13:
+  98:test_lcd.c    **** 
+  99:test_lcd.c    **** 
+ 100:test_lcd.c    ****         /*
+ 101:test_lcd.c    ****          * Test 3: display shift
+ 102:test_lcd.c    ****          */
+ 103:test_lcd.c    ****         
+ 104:test_lcd.c    ****         lcd_clrscr();     /* clear display home cursor */
+ 131               		.loc 1 104 0
+ 132 0056 0E94 0000 		call lcd_clrscr
+ 133               	.LVL14:
+ 105:test_lcd.c    **** 
+ 106:test_lcd.c    ****         /* put string from program memory to display */
+ 107:test_lcd.c    ****         lcd_puts_P( "Line 1 longer than 14 characters\n" );
+ 134               		.loc 1 107 0
+ 135 005a 80E0      		ldi r24,lo8(__c.1802)
+ 136 005c 90E0      		ldi r25,hi8(__c.1802)
+ 137 005e 0E94 0000 		call lcd_puts_p
+ 138               	.LVL15:
+ 108:test_lcd.c    ****         lcd_puts_P( "Line 2 longer than 14 characters" );
+ 139               		.loc 1 108 0
+ 140 0062 80E0      		ldi r24,lo8(__c.1804)
+ 141 0064 90E0      		ldi r25,hi8(__c.1804)
+ 142 0066 0E94 0000 		call lcd_puts_p
+ 143               	.LVL16:
+ 109:test_lcd.c    ****         
+ 110:test_lcd.c    ****         /* move BOTH lines one position to the left */
+ 111:test_lcd.c    ****         lcd_command(LCD_MOVE_DISP_LEFT);
+ 144               		.loc 1 111 0
+ 145 006a 88E1      		ldi r24,lo8(24)
+ 146 006c 0E94 0000 		call lcd_command
+ 147               	.LVL17:
+ 112:test_lcd.c    ****         
+ 113:test_lcd.c    ****         /* wait until push button PD2 (INT0) is pressed */
+ 114:test_lcd.c    ****         wait_until_key_pressed();
+ 148               		.loc 1 114 0
+ 149 0070 0E94 0000 		call wait_until_key_pressed
+ 150               	.LVL18:
+ 115:test_lcd.c    **** 
+ 116:test_lcd.c    ****         /* turn off cursor */
+ 117:test_lcd.c    ****         lcd_command(LCD_DISP_ON);
+ 151               		.loc 1 117 0
+ 152 0074 8CE0      		ldi r24,lo8(12)
+ 153 0076 0E94 0000 		call lcd_command
+ 154               	.LVL19:
+ 118:test_lcd.c    ****         
+ 119:test_lcd.c    ****         
+ 120:test_lcd.c    ****         /*
+ 121:test_lcd.c    ****          *   Test: Display integer values
+ 122:test_lcd.c    ****          */
+ 123:test_lcd.c    ****         
+ 124:test_lcd.c    ****         lcd_clrscr();   /* clear display home cursor */
+ 155               		.loc 1 124 0
+ 156 007a 0E94 0000 		call lcd_clrscr
+ 157               	.LVL20:
+ 125:test_lcd.c    ****         
+ 126:test_lcd.c    ****         /* convert interger into string */
+ 127:test_lcd.c    ****         itoa( num , buffer, 10);
+ 158               		.loc 1 127 0
+ 159 007e 4AE0      		ldi r20,lo8(10)
+ 160 0080 50E0      		ldi r21,0
+ 161 0082 BE01      		movw r22,r28
+ 162 0084 6F5F      		subi r22,-1
+ 163 0086 7F4F      		sbci r23,-1
+ 164 0088 86E8      		ldi r24,lo8(-122)
+ 165 008a 90E0      		ldi r25,0
+ 166 008c 0E94 0000 		call itoa
+ 167               	.LVL21:
+ 128:test_lcd.c    ****         
+ 129:test_lcd.c    ****         /* put converted string to display */
+ 130:test_lcd.c    ****         lcd_puts(buffer);
+ 168               		.loc 1 130 0
+ 169 0090 CE01      		movw r24,r28
+ 170 0092 0196      		adiw r24,1
+ 171 0094 0E94 0000 		call lcd_puts
+ 172               	.LVL22:
+ 131:test_lcd.c    ****         
+ 132:test_lcd.c    ****         /* wait until push button PD2 (INT0) is pressed */
+ 133:test_lcd.c    ****         wait_until_key_pressed();
+ 173               		.loc 1 133 0
+ 174 0098 0E94 0000 		call wait_until_key_pressed
+ 175               	.LVL23:
+ 134:test_lcd.c    ****         
+ 135:test_lcd.c    ****         
+ 136:test_lcd.c    ****         /*
+ 137:test_lcd.c    ****          *  Test: Display userdefined characters
+ 138:test_lcd.c    ****          */
+ 139:test_lcd.c    **** 
+ 140:test_lcd.c    ****        lcd_clrscr();   /* clear display home cursor */
+ 176               		.loc 1 140 0
+ 177 009c 0E94 0000 		call lcd_clrscr
+ 178               	.LVL24:
+ 141:test_lcd.c    ****        
+ 142:test_lcd.c    ****        lcd_puts("Copyright: ");
+ 179               		.loc 1 142 0
+ 180 00a0 80E0      		ldi r24,lo8(.LC3)
+ 181 00a2 90E0      		ldi r25,hi8(.LC3)
+ 182 00a4 0E94 0000 		call lcd_puts
+ 183               	.LVL25:
+ 143:test_lcd.c    ****        
+ 144:test_lcd.c    ****        /*
+ 145:test_lcd.c    ****         * load two userdefined characters from program memory
+ 146:test_lcd.c    ****         * into LCD controller CG RAM location 0 and 1
+ 147:test_lcd.c    ****         */
+ 148:test_lcd.c    ****        lcd_command(_BV(LCD_CGRAM));  /* set CG RAM start address 0 */
+ 184               		.loc 1 148 0
+ 185 00a8 80E4      		ldi r24,lo8(64)
+ 186 00aa 0E94 0000 		call lcd_command
+ 187               	.LVL26:
+ 188 00ae 00E0      		ldi r16,lo8(copyRightChar)
+ 189 00b0 10E0      		ldi r17,hi8(copyRightChar)
+ 190               	.LVL27:
+ 191               	.L10:
+ 192               	.LBB2:
+ 149:test_lcd.c    ****        for(i=0; i<16; i++)
+ 150:test_lcd.c    ****        {
+ 151:test_lcd.c    ****            lcd_data(pgm_read_byte_near(&copyRightChar[i]));
+ 193               		.loc 1 151 0 discriminator 2
+ 194 00b2 F801      		movw r30,r16
+ 195               	/* #APP */
+ 196               	 ;  151 "test_lcd.c" 1
+ 197 00b4 8491      		lpm r24, Z
+ 198               		
+ 199               	 ;  0 "" 2
+ 200               	.LVL28:
+ 201               	/* #NOAPP */
+ 202               	.LBE2:
+ 203 00b6 0E94 0000 		call lcd_data
+ 204               	.LVL29:
+ 205 00ba 0F5F      		subi r16,-1
+ 206 00bc 1F4F      		sbci r17,-1
+ 207               	.LVL30:
+ 149:test_lcd.c    ****        for(i=0; i<16; i++)
+ 208               		.loc 1 149 0 discriminator 2
+ 209 00be F0E0      		ldi r31,hi8(copyRightChar+16)
+ 210 00c0 0030      		cpi r16,lo8(copyRightChar+16)
+ 211 00c2 1F07      		cpc r17,r31
+ 212 00c4 01F4      		brne .L10
+ 152:test_lcd.c    ****        }
+ 153:test_lcd.c    ****        
+ 154:test_lcd.c    ****        /* move cursor to position 0 on line 2 */
+ 155:test_lcd.c    ****        /* Note: this switched back to DD RAM adresses */
+ 156:test_lcd.c    ****        lcd_gotoxy(0,1);
+ 213               		.loc 1 156 0
+ 214 00c6 61E0      		ldi r22,lo8(1)
+ 215 00c8 80E0      		ldi r24,0
+ 216 00ca 0E94 0000 		call lcd_gotoxy
+ 217               	.LVL31:
+ 157:test_lcd.c    ****        
+ 158:test_lcd.c    ****        /* display user defined (c), built using two user defined chars */
+ 159:test_lcd.c    ****        lcd_putc(0);
+ 218               		.loc 1 159 0
+ 219 00ce 80E0      		ldi r24,0
+ 220 00d0 0E94 0000 		call lcd_putc
+ 221               	.LVL32:
+ 160:test_lcd.c    ****        lcd_putc(1);
+ 222               		.loc 1 160 0
+ 223 00d4 81E0      		ldi r24,lo8(1)
+ 224 00d6 0E94 0000 		call lcd_putc
+ 225               	.LVL33:
+ 161:test_lcd.c    ****        
+ 162:test_lcd.c    **** 
+ 163:test_lcd.c    ****        /* wait until push button PD2 (INT0) is pressed */
+ 164:test_lcd.c    ****        wait_until_key_pressed();
+ 226               		.loc 1 164 0
+ 227 00da 0E94 0000 		call wait_until_key_pressed
+ 228               	.LVL34:
+ 165:test_lcd.c    ****               
+ 166:test_lcd.c    ****     }
+ 229               		.loc 1 166 0
+ 230 00de 00C0      		rjmp .L11
+ 231               		.cfi_endproc
+ 232               	.LFE2:
+ 234               		.section	.progmem.data,"a",@progbits
+ 237               	__c.1804:
+ 238 0000 4C69 6E65 		.string	"Line 2 longer than 14 characters"
+ 238      2032 206C 
+ 238      6F6E 6765 
+ 238      7220 7468 
+ 238      616E 2031 
+ 241               	__c.1802:
+ 242 0021 4C69 6E65 		.string	"Line 1 longer than 14 characters\n"
+ 242      2031 206C 
+ 242      6F6E 6765 
+ 242      7220 7468 
+ 242      616E 2031 
+ 245               	copyRightChar:
+ 246 0043 07        		.byte	7
+ 247 0044 08        		.byte	8
+ 248 0045 13        		.byte	19
+ 249 0046 14        		.byte	20
+ 250 0047 14        		.byte	20
+ 251 0048 13        		.byte	19
+ 252 0049 08        		.byte	8
+ 253 004a 07        		.byte	7
+ 254 004b 00        		.byte	0
+ 255 004c 10        		.byte	16
+ 256 004d 08        		.byte	8
+ 257 004e 08        		.byte	8
+ 258 004f 08        		.byte	8
+ 259 0050 08        		.byte	8
+ 260 0051 10        		.byte	16
+ 261 0052 00        		.byte	0
+ 262               		.text
+ 263               	.Letext0:
+ 264               		.file 2 "/usr/lib/avr/include/stdint.h"
+ 265               		.file 3 "lcd.h"
+ 266               		.file 4 "/usr/lib/avr/include/stdlib.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 test_lcd.c
+     /tmp/cc0v0EG8.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/cc0v0EG8.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/cc0v0EG8.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/cc0v0EG8.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cc0v0EG8.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/cc0v0EG8.s:12     .text:0000000000000000 wait_until_key_pressed
+     /tmp/cc0v0EG8.s:56     .text.startup:0000000000000000 main
+     /tmp/cc0v0EG8.s:241    .progmem.data:0000000000000021 __c.1802
+     /tmp/cc0v0EG8.s:237    .progmem.data:0000000000000000 __c.1804
+     /tmp/cc0v0EG8.s:245    .progmem.data:0000000000000043 copyRightChar
+
+UNDEFINED SYMBOLS
+lcd_init
+lcd_clrscr
+lcd_puts
+lcd_gotoxy
+lcd_putc
+lcd_command
+lcd_puts_p
+itoa
+lcd_data
+__do_copy_data
