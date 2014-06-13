@@ -1,0 +1,252 @@
+   1               		.file	"main.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               		.section	.text.startup,"ax",@progbits
+  11               	.global	main
+  13               	main:
+  14               	.LFB6:
+  15               		.file 1 "main.c"
+   1:main.c        **** #include <avr/io.h>
+   2:main.c        **** #include <util/delay.h>
+   3:main.c        **** 
+   4:main.c        **** int main(void)
+   5:main.c        **** {
+  16               		.loc 1 5 0
+  17               		.cfi_startproc
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+   6:main.c        **** 
+   7:main.c        **** 	DDRB = (1 << PORTB0);
+  22               		.loc 1 7 0
+  23 0000 81E0      		ldi r24,lo8(1)
+  24 0002 84B9      		out 0x4,r24
+  25               	.L2:
+   8:main.c        **** 
+   9:main.c        ****     while(1)
+  10:main.c        ****     {
+  11:main.c        **** 
+  12:main.c        **** 	PORTB = 0b0;
+  26               		.loc 1 12 0 discriminator 1
+  27 0004 15B8      		out 0x5,__zero_reg__
+  28               	.LVL0:
+  29               	.LBB6:
+  30               	.LBB7:
+  31               		.file 2 "c:\\program files (x86)\\atmel\\atmel toolchain\\avr8 gcc\\native\\3.4.1056\\avr8-gnu-too
+   1:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
+   3:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
+   4:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    All rights reserved.
+   5:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+   6:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    Redistribution and use in source and binary forms, with or without
+   7:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    modification, are permitted provided that the following conditions are met:
+   8:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+   9:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    * Redistributions of source code must retain the above copyright
+  10:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****      notice, this list of conditions and the following disclaimer.
+  11:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  12:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  13:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****      notice, this list of conditions and the following disclaimer in
+  14:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****      the documentation and/or other materials provided with the
+  15:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****      distribution.
+  16:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  17:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    * Neither the name of the copyright holders nor the names of
+  18:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****      contributors may be used to endorse or promote products derived
+  19:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****      from this software without specific prior written permission.
+  20:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  21:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  22:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  23:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  24:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  25:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  26:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  27:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  28:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  29:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  30:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  31:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  32:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  33:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** /* $Id$ */
+  34:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  35:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #ifndef _UTIL_DELAY_H_
+  36:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #define _UTIL_DELAY_H_ 1
+  37:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  38:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #ifndef __HAS_DELAY_CYCLES
+  39:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #define __HAS_DELAY_CYCLES 1
+  40:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #endif
+  41:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  42:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #include <inttypes.h>
+  43:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #include <util/delay_basic.h>
+  44:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #include <math.h>
+  45:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  46:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** /** \file */
+  47:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** /** \defgroup util_delay <util/delay.h>: Convenience functions for busy-wait delay loops
+  48:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     \code
+  49:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  50:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     //#define F_CPU 14.7456E6
+  51:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     #include <util/delay.h>
+  52:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     \endcode
+  53:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  54:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     \note As an alternative method, it is possible to pass the
+  55:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  56:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     Obviously, in that case, no \c \#define statement should be
+  57:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     used.
+  58:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  59:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     The functions in this header file are wrappers around the basic
+  60:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     busy-wait functions from <util/delay_basic.h>.  They are meant as
+  61:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     convenience functions where actual time values can be specified
+  62:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     rather than a number of cycles to wait for.  The idea behind is
+  63:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     that compile-time constant expressions will be eliminated by
+  64:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     compiler optimization so floating-point expressions can be used
+  65:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     to calculate the number of delay cycles needed based on the CPU
+  66:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     frequency passed by the macro F_CPU.
+  67:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  68:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     \note In order for these functions to work as intended, compiler
+  69:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     optimizations <em>must</em> be enabled, and the delay time
+  70:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     <em>must</em> be an expression that is a known constant at
+  71:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     compile-time.  If these requirements are not met, the resulting
+  72:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     delay will be much longer (and basically unpredictable), and
+  73:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     applications that otherwise do not use floating-point calculations
+  74:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     will experience severe code bloat by the floating-point library
+  75:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     routines linked into the application.
+  76:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  77:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     The functions available allow the specification of microsecond, and
+  78:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     millisecond delays directly, using the application-supplied macro
+  79:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     F_CPU as the CPU clock frequency (in Hertz).
+  80:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  81:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** */
+  82:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  83:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #if !defined(__DOXYGEN__)
+  84:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** static inline void _delay_us(double __us) __attribute__((always_inline));
+  85:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** static inline void _delay_ms(double __ms) __attribute__((always_inline));
+  86:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #endif
+  87:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  88:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #ifndef F_CPU
+  89:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** /* prevent compiler error by supplying a default */
+  90:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+  91:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** # define F_CPU 1000000UL
+  92:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #endif
+  93:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  94:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #ifndef __OPTIMIZE__
+  95:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** # warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+  96:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #endif
+  97:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+  98:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+  99:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 100:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   __STDC_HOSTED__
+ 101:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #  include <math.h>
+ 102:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #endif
+ 103:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 104:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** /**
+ 105:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    \ingroup util_delay
+ 106:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 107:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 108:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 109:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    The macro F_CPU is supposed to be defined to a
+ 110:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 111:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 112:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 113:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 114:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    When the user request delay which exceed the maximum possible one,
+ 115:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    _delay_ms() provides a decreased resolution functionality. In this
+ 116:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    mode _delay_ms() will work with a resolution of 1/10 ms, providing
+ 117:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    delays up to 6.5535 seconds (independent from CPU frequency).  The
+ 118:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    user will not be informed about decreased resolution.
+ 119:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 120:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
+ 121:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    support, maximal possible delay is 4294967.295 ms/ F_CPU in MHz. For
+ 122:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    values greater than the maximal possible delay, overflows results in
+ 123:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    no delay i.e., 0ms.
+ 124:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 125:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    Conversion of __us into clock cycles may not always result in integer.
+ 126:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
+ 127:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    the user gets atleast __us microseconds of delay.
+ 128:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 129:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
+ 130:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    to round down and round to closest integer.
+ 131:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 132:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    Note: The new implementation of _delay_ms(double __ms) with 
+ 133:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible. 
+ 134:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay.
+ 135:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    Also, the backward compatible
+ 136:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    algorithm will be chosen if the code is compiled in a <em>freestanding
+ 137:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    environment</em> (GCC option \c -ffreestanding), as the math functions
+ 138:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****    required for rounding are not available to the compiler then.
+ 139:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 140:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****  */
+ 141:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** void
+ 142:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** _delay_ms(double __ms)
+ 143:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** {
+ 144:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 	double __tmp ; 
+ 145:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 146:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 147:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h ****   __STDC_HOSTED__
+ 148:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 	uint32_t __ticks_dc;
+ 149:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 150:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 151:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 152:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 153:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 154:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 155:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 156:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 157:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 158:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 	#else
+ 159:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 		//round up by default
+ 160:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 161:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 	#endif
+ 162:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 
+ 163:c:\program files (x86)\atmel\atmel toolchain\avr8 gcc\native\3.4.1056\avr8-gnu-toolchain\avr\include\util\delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+  32               		.loc 2 163 0 discriminator 1
+  33 0006 2FE3      		ldi r18,lo8(199999)
+  34 0008 3DE0      		ldi r19,hi8(199999)
+  35 000a 93E0      		ldi r25,hlo8(199999)
+  36 000c 2150      		1: subi r18,1
+  37 000e 3040      		sbci r19,0
+  38 0010 9040      		sbci r25,0
+  39 0012 01F4      		brne 1b
+  40 0014 00C0      		rjmp .
+  41 0016 0000      		nop
+  42               	.LBE7:
+  43               	.LBE6:
+  13:main.c        **** 	_delay_ms(1000);
+  14:main.c        **** 	PORTB = 0b1;
+  44               		.loc 1 14 0 discriminator 1
+  45 0018 85B9      		out 0x5,r24
+  46               	.LVL1:
+  47               	.LBB8:
+  48               	.LBB9:
+  49               		.loc 2 163 0 discriminator 1
+  50 001a 2FE3      		ldi r18,lo8(199999)
+  51 001c 3DE0      		ldi r19,hi8(199999)
+  52 001e 93E0      		ldi r25,hlo8(199999)
+  53 0020 2150      		1: subi r18,1
+  54 0022 3040      		sbci r19,0
+  55 0024 9040      		sbci r25,0
+  56 0026 01F4      		brne 1b
+  57 0028 00C0      		rjmp .
+  58 002a 0000      		nop
+  59 002c 00C0      		rjmp .L2
+  60               	.LBE9:
+  61               	.LBE8:
+  62               		.cfi_endproc
+  63               	.LFE6:
+  65               		.text
+  66               	.Letext0:
+  67               		.file 3 "c:\\program files (x86)\\atmel\\atmel toolchain\\avr8 gcc\\native\\3.4.1056\\avr8-gnu-too
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\roney\AppData\Local\Temp\ccb5pF5n.s:2      *ABS*:0000003e __SP_H__
+C:\Users\roney\AppData\Local\Temp\ccb5pF5n.s:3      *ABS*:0000003d __SP_L__
+C:\Users\roney\AppData\Local\Temp\ccb5pF5n.s:4      *ABS*:0000003f __SREG__
+C:\Users\roney\AppData\Local\Temp\ccb5pF5n.s:5      *ABS*:00000000 __tmp_reg__
+C:\Users\roney\AppData\Local\Temp\ccb5pF5n.s:6      *ABS*:00000001 __zero_reg__
+C:\Users\roney\AppData\Local\Temp\ccb5pF5n.s:13     .text.startup:00000000 main
+
+NO UNDEFINED SYMBOLS
