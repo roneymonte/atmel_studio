@@ -1,9 +1,19 @@
 ################################
 # Definicoes de Microcontrolador
 # e nome do codigo fonte
+#
 MCU = atmega168p
 TARGET = test_lcd
 SRC = $(TARGET).c lcd.c
+#
+# Normalmente somente estes campos acima
+# deverao ser alterados para se compilar
+# um projeto com o comando "make"
+########################################
+
+
+# Daqui para baixo nao eh necessario alterar
+
 
 FORMAT = ihex
 #########################################
@@ -90,11 +100,13 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 ##############################################################
 # Compilacao Default seguindo a ordem de definicoes de funcoes
 # Default target.
-all: begin gccversion sizebefore build sizeafter finished end
+#all: begin gccversion sizebefore build sizeafter finished end
+all:  build end
 
 #########################################################
 # Funcao "build" composta por 5 arquivos a serem montados
-build: elf hex eep lss sym
+#build: elf hex eep lss sym
+build: elf hex 
 
 elf: $(TARGET).elf
 hex: $(TARGET).hex
@@ -186,10 +198,6 @@ extcoff: $(TARGET).elf
 	@echo
 	@echo $(MSG_SYMBOL_TABLE) $@
 	$(NM) -n $< > $@
-
-
-
-
 
 # Link: create ELF output file from object files.
 .SECONDARY : $(TARGET).elf
