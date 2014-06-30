@@ -13,6 +13,9 @@
 
 int main(void)
 {
+	
+	short int a;
+	
 	DDRB |= (1<<PORTB0);
 	lcd_init(LCD_DISP_ON_CURSOR_BLINK);
 	
@@ -20,7 +23,6 @@ int main(void)
     {
 		PORTB = 1;		// liga apenas o primeiro bit de B
 		_delay_ms(1000);	
-		
 		
 		lcd_clrscr();
 		PORTB = 0;		// desliga o primeiro bit;
@@ -30,6 +32,31 @@ int main(void)
 		_delay_ms(250);
 		lcd_puts("AtmelS62");
 		_delay_ms(250);
+		
+		for (a=0;a<8;a++)
+		{
+		lcd_command(LCD_MOVE_DISP_LEFT);
+		_delay_ms(250);
+		}
+		
+		for (a=0;a<8;a++)
+		{
+			lcd_command(LCD_MOVE_DISP_RIGHT);
+			_delay_ms(250);
+		}
+		_delay_ms(500);
+		for (a=0;a<8;a++)
+		{
+			lcd_command(LCD_MOVE_DISP_RIGHT);
+			_delay_ms(250);
+		}
+		_delay_ms(500);
+		
+		for (a=0;a<8;a++)
+		{
+			lcd_command(LCD_MOVE_DISP_LEFT);
+			_delay_ms(250);
+		}
 		
 		_delay_ms(1000);
 		
