@@ -29,25 +29,6 @@ static const PROGMEM unsigned char copyRightChar[] =
 /*
 ** function prototypes
 */ 
-void wait_until_key_pressed(void);
-
-
-
-void wait_until_key_pressed(void)
-{
-    unsigned char temp1, temp2;
-    unsigned int i;
-    
-    do {
-        temp1 = PIND;                  // read input
-        for(i=0;i<65535;i++);
-        temp2 = PIND;                  // read input
-        temp1 = (temp1 & temp2);       // debounce input
-    } while ( temp1 & _BV(PIND2) );
-    
-    loop_until_bit_is_set(PIND,PIND2);            /* wait until key is released */
-}
-
 
 int main(void)
 {
@@ -55,34 +36,33 @@ int main(void)
     int  num=134;
     unsigned char i;
     
-    
     DDRD &=~ (1 << PD2);        /* Pin PD2 input              */
     PORTD |= (1 << PD2);        /* Pin PD2 pull-up enabled    */
     DDRB |= (1 << PB0);		/* Led na porta PB0 para sinalizacao */
 
     //-----------------
-//    DDRD |= (1 << PD5);		// liga a porta D pino 5
-//    DDRD |= (1 << PD6);
-//    DDRD |= (1 << PD7);
-//    PORTD &= ~((1<<PD5)|(1<<PD6)|(1<<PD7));
+    DDRD |= (1 << PD5);		// liga a porta D pino 5
+    DDRD |= (1 << PD6);
+    DDRD |= (1 << PD7);
+    PORTD &= ~((1<<PD5)|(1<<PD6)|(1<<PD7));
     //-----------------
-//    DDRC |= (1 << PC0);
-//    DDRC |= (1 << PC1);
-//    DDRC |= (1 << PC2);
-//    DDRC |= (1 << PC3);
-/*
+    DDRC |= (1 << PC0);
+    DDRC |= (1 << PC1);
+    DDRC |= (1 << PC2);
+    DDRC |= (1 << PC3);
+
 	PORTB=0b1; _delay_ms(1000);
 	PORTB=0b0; _delay_ms(1000);
 	PORTB=0b1; _delay_ms(1000);
 	PORTB=0b0; _delay_ms(1000);
 	PORTB=0b1; _delay_ms(1000);
 	PORTB=0b0; _delay_ms(1000);
-*/
+
 
     /* initialize display, cursor off */
     lcd_init(LCD_DISP_ON);
-//	PORTB=0b1; _delay_ms(1000);
-//	PORTB=0b0; _delay_ms(1000);
+	PORTB=0b1; _delay_ms(1000);
+	PORTB=0b0; _delay_ms(1000);
 
     for (;;) {                           /* loop forever */
         /* 
@@ -94,9 +74,11 @@ int main(void)
         
         /* put string to display (line 1) with linefeed */
         lcd_puts("LCD Test Line 1\n");
+	_delay_ms(1000);
 
         /* cursor is now on second line, write second line */
         lcd_puts("Line 2");
+	_delay_ms(1000);
         
         /* move cursor to position 8 on line 2 */
         lcd_gotoxy(7,1);  
@@ -105,7 +87,6 @@ int main(void)
         lcd_putc(':');
         
         /* wait until push button PD2 (INT0) is pressed */
-        wait_until_key_pressed();
         
         
         /*
@@ -117,9 +98,9 @@ int main(void)
 
         /* put string */
         lcd_puts( "CurOn");
+	_delay_ms(1000);
         
         /* wait until push button PD2 (INT0) is pressed */
-        wait_until_key_pressed();
 
 
         /*
@@ -130,13 +111,15 @@ int main(void)
 
         /* put string from program memory to display */
         lcd_puts_P( "Line 1 longer than 14 characters\n" );
+	_delay_ms(1000);
         lcd_puts_P( "Line 2 longer than 14 characters" );
+	_delay_ms(1000);
         
         /* move BOTH lines one position to the left */
         lcd_command(LCD_MOVE_DISP_LEFT);
+	_delay_ms(1000);
         
         /* wait until push button PD2 (INT0) is pressed */
-        wait_until_key_pressed();
 
         /* turn off cursor */
         lcd_command(LCD_DISP_ON);
@@ -147,6 +130,7 @@ int main(void)
          */
         
         lcd_clrscr();   /* clear display home cursor */
+	_delay_ms(1000);
         
         /* convert interger into string */
         itoa( num , buffer, 10);
@@ -155,7 +139,6 @@ int main(void)
         lcd_puts(buffer);
         
         /* wait until push button PD2 (INT0) is pressed */
-        wait_until_key_pressed();
         
         
         /*
@@ -175,6 +158,7 @@ int main(void)
        {
            lcd_data(pgm_read_byte_near(&copyRightChar[i]));
        }
+	_delay_ms(1000);
        
        /* move cursor to position 0 on line 2 */
        /* Note: this switched back to DD RAM adresses */
@@ -183,10 +167,10 @@ int main(void)
        /* display user defined (c), built using two user defined chars */
        lcd_putc(0);
        lcd_putc(1);
+	_delay_ms(1000);
        
 
        /* wait until push button PD2 (INT0) is pressed */
-       wait_until_key_pressed();
               
     }
 }
