@@ -13,12 +13,23 @@
 
 int main(void)
 {
+	DDRB |= (1<<PORTB0);
+	lcd_init(LCD_DISP_ON_CURSOR_BLINK);
+	
     while(1)
     {
-		lcd_clrscr();
+		PORTB = 1;		// liga apenas o primeiro bit de B
+		_delay_ms(1000);	
 		
-		lcd_puts("AVR 168P\n");
-		lcd_puts("Atmel 62");
+		
+		lcd_clrscr();
+		PORTB = 0;		// desliga o primeiro bit;
+		_delay_ms(3000);
+				
+		lcd_puts("AVRm168P\n");
+		_delay_ms(250);
+		lcd_puts("AtmelS62");
+		_delay_ms(250);
 		
 		_delay_ms(1000);
 		
