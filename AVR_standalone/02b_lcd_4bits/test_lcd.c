@@ -21,6 +21,8 @@ static const PROGMEM unsigned char copyRightChar[] =
 {
 	0x07, 0x08, 0x13, 0x14, 0x14, 0x13, 0x08, 0x07,
 	0x00, 0x10, 0x08, 0x08, 0x08, 0x08, 0x10, 0x00
+	/* Este caractere representa o (R)
+	de Marca Registrada */
 };
 
 
@@ -28,6 +30,7 @@ static const PROGMEM unsigned char copyRightChar[] =
 ** function prototypes
 */ 
 void wait_until_key_pressed(void);
+
 
 
 void wait_until_key_pressed(void)
@@ -58,27 +61,28 @@ int main(void)
     DDRB |= (1 << PB0);		/* Led na porta PB0 para sinalizacao */
 
     //-----------------
-    DDRD |= (1 << PD5);
-    DDRD |= (1 << PD6);
-    DDRD |= (1 << PD7);
-    PORTD &= ~((1<<PD5)|(1<<PD6)|(1<<PD7));
+//    DDRD |= (1 << PD5);		// liga a porta D pino 5
+//    DDRD |= (1 << PD6);
+//    DDRD |= (1 << PD7);
+//    PORTD &= ~((1<<PD5)|(1<<PD6)|(1<<PD7));
     //-----------------
-    DDRC |= (1 << PC0);
-    DDRC |= (1 << PC1);
-    DDRC |= (1 << PC2);
-    DDRC |= (1 << PC3);
-
+//    DDRC |= (1 << PC0);
+//    DDRC |= (1 << PC1);
+//    DDRC |= (1 << PC2);
+//    DDRC |= (1 << PC3);
+/*
 	PORTB=0b1; _delay_ms(1000);
 	PORTB=0b0; _delay_ms(1000);
 	PORTB=0b1; _delay_ms(1000);
 	PORTB=0b0; _delay_ms(1000);
 	PORTB=0b1; _delay_ms(1000);
 	PORTB=0b0; _delay_ms(1000);
+*/
 
     /* initialize display, cursor off */
     lcd_init(LCD_DISP_ON);
-	PORTB=0b1; _delay_ms(1000);
-	PORTB=0b0; _delay_ms(1000);
+//	PORTB=0b1; _delay_ms(1000);
+//	PORTB=0b0; _delay_ms(1000);
 
     for (;;) {                           /* loop forever */
         /* 
