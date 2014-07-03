@@ -3,6 +3,9 @@
  *
  * Created: 30/06/2014 15:44:03
  *  Author: roney
+ 
+ *  Atualizado em 03/Jul/2014 - Atmel Studio 5.1.208
+ 
  */ 
 
 #define  F_CPU 1000000UL 
