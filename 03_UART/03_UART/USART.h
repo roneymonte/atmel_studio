@@ -11,6 +11,11 @@
                                   /* These are defined for convenience */
 #define   USART_HAS_DATA   bit_is_set(UCSR0A, RXC0)
 #define   USART_READY      bit_is_set(UCSR0A, UDRE0)
+/*
+Address	Name	Bit 7	Bit 6	Bit 5	Bit 4	Bit 3	Bit 2	Bit 1	Bit 0
+(0xC1)	UCSR0B	RXCIE0	TXCIE0	UDRIE0	RXEN0	TXEN0	UCSZ02	RXB80	TXB80
+(0xC0)	UCSR0A	RXC0	TXC0	UDRE0	FE0		DOR0	UPE0	U2X0	MPCM0
+*/
 
 /* Takes the defined BAUD and F_CPU,
    calculates the bit-clock multiplier,
