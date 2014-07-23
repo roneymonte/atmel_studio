@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "04_UART_e_LCD", "04_UART_e_LCD\04_UART_e_LCD.cproj", "{7797618E-55E7-40FF-AF66-B5AEF4A322B7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7797618E-55E7-40FF-AF66-B5AEF4A322B7}.Debug|AVR.ActiveCfg = Debug|AVR
+		{7797618E-55E7-40FF-AF66-B5AEF4A322B7}.Debug|AVR.Build.0 = Debug|AVR
+		{7797618E-55E7-40FF-AF66-B5AEF4A322B7}.Release|AVR.ActiveCfg = Release|AVR
+		{7797618E-55E7-40FF-AF66-B5AEF4A322B7}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
