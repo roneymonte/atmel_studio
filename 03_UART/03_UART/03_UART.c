@@ -9,6 +9,8 @@
  ao terminal serial os caracteres digitados, e esperando os
  bits na PORTB.
  
+ Atualizado em 30/07/2014 as 18:07 - LED de fluxo serial
+ 
  */ 
 
 #define F_CPU 1000000UL
@@ -20,11 +22,14 @@
 
 int main(void)
 {
-	DDRD = (1<<1); // habilita output no pino PD1 (TXD)
+	DDRD = (1<<1);		// habilita output no pino PD1 (TXD)
+	DDRB = (1<<PB5);	// habilita LED usado no bootloader 
+						// (para piscar em status)
 	
 	char serialCharacter;
 	
 	LED_DDR=0xff;
+	
 	initUSART();
 	printString("Ola Mundo\r\n");
 	
@@ -32,7 +37,10 @@ int main(void)
     {
 		serialCharacter = receiveByte();
 		transmitByte(serialCharacter);
-		LED_PORT=serialCharacter;
+		
+		//LED_PORT=serialCharacter;
+		PORTB |= _BV(PB5);
+		
 	}
 	
 	return(0);
