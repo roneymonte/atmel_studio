@@ -23,6 +23,7 @@
 int main(void)
 {
 	DDRD = (1<<1);		// habilita output no pino PD1 (TXD)
+	DDRB = (1<<PB0);	// LED na porta PB0
 	DDRB = (1<<PB5);	// habilita LED usado no bootloader 
 						// (para piscar em status)
 	
@@ -31,15 +32,19 @@ int main(void)
 	LED_DDR=0xff;
 	
 	initUSART();
+	PORTB |= (1<<PB0);
+	PORTB &= ~(1<<PB5);
 	printString("Ola Mundo\r\n");
+	
 	
     while(1)
     {
 		serialCharacter = receiveByte();
+		PORTB ^= _BV(PB0);
 		transmitByte(serialCharacter);
 		
 		//LED_PORT=serialCharacter;
-		PORTB |= _BV(PB5);
+		PORTB ^= _BV(PB5);
 		
 	}
 	
