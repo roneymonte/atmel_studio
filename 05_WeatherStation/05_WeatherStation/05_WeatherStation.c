@@ -22,6 +22,8 @@
  * _ versao 1.0c,d,e - 04ago2014:
  *		- experimental com valores para VOLT ref 1.1v, luz e temperatura chip
  *
+ * _ versao 1.0f - 05ago2014:
+ *		- acerto do ADC com valores calibrados para bateria e luz
  */ 
 
 
@@ -50,13 +52,14 @@
 
 void dormirADC (void);
 void hello (void);
+uint16_t coletarADC (char multiplexador);
 
 EMPTY_INTERRUPT(ADC_vect);
 
 int main(void)
 {
 	uint16_t valorADC;
-	unsigned char valor;
+	//unsigned char valor;
 	float vcc;
 	float luz;
 	//uint16_t vcc;
@@ -101,39 +104,10 @@ int main(void)
 		
 		if (serialCharacter == '*')
 		{	
-			printString("\r\nADC ");
-					
-					
-					
-					
-			/* ===========LUMINOSIDADE==========*/
-			/* =================================*/	
-			//ADMUX	|= (1<<REFS0) | (1<<REFS1);	// configura voltagem referencia por voltagem interna de 1.1v
+			printString("ADC ");
 			
-			//ADCSRA	|= (1<<ADPS1) | (1<<ADPS0);	// prescaler do ADC como /8 do clock
-			//_delay_ms(1000);
-			//ADCSRA	|= (1<<ADEN);					// habilita o ADC (AD ENABLE)
-			//_delay_ms(1000);
-			//ADMUX	= 0b11110000;
-			//ADMUX	|= (1<<REFS0) | (1<<REFS1);	// configura voltagem referencia por voltagem interna de 1.1v
-			//ADCSRA	|= (1<<ADPS1) | (1<<ADPS0);	// prescaler do ADC como /8 do clock (1/8 de 1mhz = 125 khz)
-			ADCSRA &= ~(1<<ADEN);
-			ADMUX	= 0b00000000;
-			ADMUX	|= (1<<REFS0) | (1<<REFS1);	// configura voltagem referencia por voltagem
-				
-			ADMUX	|= _BV(MUX1) | _BV(MUX0) ;		// coleta analogica no pino C3 (LDR)
-			ADCSRA |= (1<<ADEN);
-			_delay_ms(1000);
-			
-			ADCSRA	|= (1<<ADSC);		// AD Start Conversion
-			//dormirADC();
-			loop_until_bit_is_clear(ADCSRA, ADSC);
-			/* =================================*/
-			
-			valorADC = ADC;
-			//luminosidade = ( 1.1 * 1024 ) / valorADC;
-			valor = valorADC>>2;		// variavel de 8 bits (ate 255)
-			luz = (valorADC * 1.1) / 1023;
+			valorADC = coletarADC( (1<<MUX1)|(1<<MUX0) );
+			luz = ( (valorADC * 1.1) / 1023 ) * 100; // 1.1v * 100 = 1100 para dar 100%
 			
 			PORTB |= (1<<LED01);		// iniciando com led aceso
 			PORTB &= ~(1<<LED02);		// iniciando com led apagado
@@ -144,13 +118,11 @@ int main(void)
 			
 			printString("luz: [");
 				itoa(valorADC, buf, 10); printString(buf);
-				printString("/");
-				itoa(valor, buf, 10); printString(buf);
 				printString("] ");
 				
 			//itoa(luz, buf, 10);
 			//sprintf(buf, "%3.1f", luz);
-			dtostrf(luz,5,1,buf);
+			dtostrf(luz,3,0,buf);
 			
 			printString(buf);
 			
@@ -164,32 +136,9 @@ int main(void)
 			
 			/* ==============VOLTAGEM===========*/
 			/* =================================*/
-			//ADCSRA	&= ~(1<<ADEN);
 			
-			//ADCSRA	|= (1<<ADPS1) | (1<<ADPS0);	// prescaler do ADC como /8 do clock
-			//_delay_ms(1000);
-			//ADCSRA	|= (1<<ADEN);					// habilita o ADC (AD ENABLE)
-			//_delay_ms(1000);
-			//ADMUX	= 0b11110000;
-			//ADMUX	|= (1<<REFS0) | (1<<REFS1);	// configura voltagem referencia por voltagem interna de 1.1v
-			//ADCSRA	|= (1<<ADPS1) | (1<<ADPS0);	// prescaler do ADC como /8 do clock (1/8 de 1mhz = 125 khz)
-			ADCSRA &= ~(1<<ADEN);
-			ADMUX	= 0b00000000;
-			ADMUX	|= (1<<REFS0) | (1<<REFS1);	// configura voltagem referencia por voltagem
-				
-			ADMUX	|=  (1<<MUX1);		// coleta analogica no pino C2 (voltagem)
-			ADCSRA |= (1<<ADEN);
-			_delay_ms(1000);
-			
-			ADCSRA |= (1<<ADSC);		// AD Start Conversion
-			//dormirADC();
-			loop_until_bit_is_clear(ADCSRA, ADSC);
-			/* =================================*/
-			
-			valorADC = ADC;
-			valor = valorADC>>2;
-			//vcc = ( 5 * 1023 ) / valorADC;
-			vcc = (valorADC * 3.7) / 1023;
+			valorADC = coletarADC ( (1<<MUX1) );
+			vcc = (valorADC * 4.4) / 1023;
 
 			_delay_ms(200);
 			PORTB ^= _BV(LED01);
@@ -197,12 +146,8 @@ int main(void)
 						
 			printString("%, volt: [");
 				itoa(valorADC, buf, 10); printString(buf);
-				printString("/");
-				itoa(valor, buf, 10); printString(buf);
 				printString("] ");
 				
-			//itoa(vcc, buf, 10);
-			//sprintf(buf, "%2.2f", vcc);
 			dtostrf(vcc,4,2,buf);
 			printString(buf);
 			printString("v; ");
@@ -210,23 +155,8 @@ int main(void)
 			
 			
 			
-			/* // Se fosse com AT-TINY-85 ....
-			
-			void InternalTemperatureSensor::init() {
-				//analogReference( INTERNAL1V1 );
-				// ATTiny85 datasheet p140 (17.13.2), p137 (17.12)
-				// Configure ADMUX
-				ADMUX = B1111;                // Select temperature sensor
-				ADMUX &= ~_BV( ADLAR );       // Right-adjust result
-				
-				ADMUX |= _BV( REFS1 );                      // Set Ref voltage
-				ADMUX &= ~( _BV( REFS0 ) | _BV( REFS2 ) );  // to 1.1V
-				
-				// Configure ADCSRA
-				ADCSRA &= ~( _BV( ADATE ) |_BV( ADIE ) ); // Disable autotrigger, Disable Interrupt
-				ADCSRA |= _BV(ADEN);                      // Enable ADC
-				ADCSRA |= _BV(ADSC);          // Start first conversion
-				// Seed samples
+			/* 
+		
 				int raw_temp;
 				while( ( ( raw_temp = raw() ) < 0 ) );
 				for( int i = 0; i < TEMPERATURE_SAMPLES; i++ ) {
@@ -234,33 +164,15 @@ int main(void)
 				}
 			}		
 			*/
-			
-			ADMUX = _BV(REFS1) | _BV(REFS0) | _BV(MUX3);
-			_delay_ms(2000); // Wait for Vref to sett
+
 			
 			
 			/* ======Temperatura=do=CHIP========*/
 			/* =================================*/
-			//ADMUX = ADMUX & 0b11110000;
-			
-			//ADMUX = ADMUX | 0b1000;		// ADC8 = temperatura interna do chip
-			//ou eh a mesma coisa que
-			//ADMUX |= (1<<MUX3); // mesma coisa que 0b1000
-			
-			ADCSRA |= (1<<ADSC);		// AD Start Conversion
-			//dormirADC();
-			loop_until_bit_is_clear(ADCSRA, ADSC);
-			/* =================================*/
-			//Temperature	/ °C	-45°C	+25°C	+85°C
-			//Voltage		/ mV	242 mV	314 mV	380 mV
-						
-			valorADC = ADC;
-			valor = valorADC>>2;
+			valorADC = coletarADC(_BV(MUX3));
 			
 			printString(" temp_chip: [");
 			itoa(valorADC, buf, 10); printString(buf);
-			printString("/");
-			itoa(valor, buf, 10); printString(buf);
 			printString("] ");
 			
 				tempChip = (valorADC * 1024) /1024;
@@ -269,15 +181,8 @@ int main(void)
 			printString(buf);
 			printString(". \r\n");
 			
-			
-			
-			
 			PORTB &= ~(1<<LED01) & ~(1<<LED02);	// no final da rotina, apaga os leds
 			/* =================================*/
-			/* =================================*/
-			/* =================================*/
-			
-			
 			
 		}
 		else
@@ -305,7 +210,7 @@ int main(void)
 		else
 		if (serialCharacter == '0')
 		{
-			printString("\r\nLEDs [Verm, Amar], Brco: ");
+			printString("LEDs [Verm, Amar], Brco: ");
 			printHexByte((PINB | LED01) & 0b1); printString(","); // B0
 			printHexByte((PINB | LED02) >>5 ); printString(","); // B5
 			printHexByte((PIND | LED03) >>6 & 0b1 ); printString("\r\n"); // D6
@@ -351,8 +256,30 @@ void dormirADC (void)
 void hello (void)
 {
 	
-	printString("\r\nWeather Station v1.0e by RM.\r\n");
+	printString("\r\nWeather Station v1.0f by RM @ RJ - 05ago2014.\r\n");
 	printString("pressione:\r\n* coleta de dados\r\n! piscaled 1 min\r\n0 status leds\r\n1 led branco\r\n");
 	printString("2 led vermelho\r\n3 led amarelo\r\n");
 	
 }
+
+uint16_t  coletarADC (char multiplexador)
+{
+	/* ===========LUMINOSIDADE==========*/
+	/* =================================*/
+
+	ADCSRA &= ~(1<<ADEN);
+	ADMUX	= 0b00000000;
+	ADMUX	|= _BV(REFS0)|_BV(REFS1) ;	// configura voltagem referencia por 1.1v
+				
+	ADMUX	|=  multiplexador ;		// coleta analogica no pino C3 (LDR)
+	
+	ADCSRA |= (1<<ADEN);
+	_delay_ms(1000);
+				
+	ADCSRA	|= (1<<ADSC);		// AD Start Conversion
+	//dormirADC();
+	loop_until_bit_is_clear(ADCSRA, ADSC);
+	/* =================================*/
+	return ADC;
+	
+};
