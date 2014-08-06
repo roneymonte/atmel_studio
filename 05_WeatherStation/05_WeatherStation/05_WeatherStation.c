@@ -50,79 +50,68 @@
 #include "USART.h"
 #include "pinDefines.h"
 
-void dormirADC (void);
-void hello (void);
-uint16_t coletarADC (char multiplexador);
-void flipLed (void);
+
+void dormirADC (void);		// nao utilizado
+void hello (void);			// mensagem inicial
+uint16_t coletarADC (char multiplexador);	// leitura do ADC do MUX
+void flipLed (void);		// inverte LEDs 1 e 2
+void valorRecebido (uint16_t valor);
 
 EMPTY_INTERRUPT(ADC_vect);
 
 int main(void)
 {
-	uint16_t valorADC;
+	uint16_t valorADC;		// coleta do ADC de 0 a 1023
 
-	float vcc;
-	float luz;
+	float vcc;				// valor calculado para voltagem da bateria
+	float luz;				// valor calculado para luminosidade
 
-	uint16_t tempChip;
-	uint8_t contador;
-	char serialCharacter;
-	char buf[16];
+	uint16_t tempChip;		// temperatura interna do chip
+	uint8_t contador;		// contador para pisca-led
+	char serialCharacter;	// caractere recebido na console serial
+	char buf[16];			// buffer de string com ate 15 caracteres
 	
 	DDRB |= (1<<PB0) | (1<<PB5);		// leds vermelho e amarelo (conjunto)
 	DDRD |= (1<<PD6);					// led grande branco do PWM
 	DDRD |= (1<<PD1);					// saida da UART TX
 	DDRD |= ~(1<<PD0);					// entrada da UART RX
 	
+	// As seguintes configuracoes abaixo sao DESNECESSARIAS, pois o AVR ja tem
+	// as portas inicialmente com DDR = 0 (input)
 	//PORTC &= ~(1<<PC2);	// zerando a porta antes de configurar a direcao DDR
 	//PORTC &= ~(1<<PC3);	// zerando a porta antes de configurar a direcao DDR
 	//DDRC &= ~(1<<PC2);		// entradas analogicas do ADC (Volts)
 	//DDRC &= ~(1<<PC3);		// entradas analogicas do ADC (LDR)
-	//PORTC &= ~(1<<PC2);
-	//PORTC &= ~(1<<PC3);
+
 	
 	PORTB &= ~(1<<LED01) | ~(1<<LED02);		// inicia com leds apagados
 	PORTD &= ~(1<<LED03);					// inicia led PWM apagado
 	
-	/* =================================
-	ADMUX	= 0b00000000;
-	ADMUX	|= (1<<REFS0) | (1<<REFS1);	// configura voltagem referencia por voltagem interna de 1.1v
-	ADCSRA	|= (1<<ADPS1) | (1<<ADPS0);	// prescaler do ADC como /8 do clock (1/8 de 1mhz = 125 khz)
-	//_delay_ms(500);
-	ADCSRA |= (1<<ADEN);					// habilita o ADC (AD ENABLE)
-	//_delay_ms(500);
-	 =================================*/
-	
 	initUSART();						// por default essa biblioteca usa 9600 bps
-	
-	hello();
+	//hello();							// imprime mensagem inicial na console
+	printString("\r\n? para help\r\n");
 	
     while(1)
     {
 		serialCharacter = receiveByte();
 		
-		
 		if (serialCharacter == '*')
 		{	
-			printString("\rADC ");
+			printString("\rADC Luz:");
 			
-			valorADC = coletarADC( (1<<MUX1)|(1<<MUX0) );
-			luz = ( (valorADC * 1.1) / 1023 ) * 100; // 1.1v * 100 = 1100 para dar 100%
+			valorADC = coletarADC( (1<<MUX1)|(1<<MUX0) );	// coleta o pino C3
+			luz = ( (valorADC * 1.1) / 1023 ) * 100;	// 1.1v * 100 = 1100 para dar 100%
 			
 			PORTB |= (1<<LED01);		// iniciando com led aceso
 			PORTB &= ~(1<<LED02);		// iniciando com led apagado
 			
 			flipLed();
 			
-			printString("luz: [");
-				itoa(valorADC, buf, 10); printString(buf);
-				printString("] ");
+			valorRecebido(valorADC);
 				
-			//itoa(luz, buf, 10);
-			//sprintf(buf, "%3.1f", luz);
 			dtostrf(luz,3,0,buf);
-			
 			printString(buf);
+			
 			flipLed();
 			
 			
@@ -130,48 +119,31 @@ int main(void)
 			/* ==============VOLTAGEM===========*/
 			/* =================================*/
 			
-			valorADC = coletarADC ( (1<<MUX1) );
+			valorADC = coletarADC ( (1<<MUX1) );	// coleta o pino C2
 			vcc = (valorADC * 4.4) / 1023;	// 4.4 volts foi o valor maximo medido no multimetro
 											// quando o ADC estava em 1023.
 
 			flipLed();
-			printString("%, volt: [");
-				itoa(valorADC, buf, 10); printString(buf);
-				printString("] ");
+			printString("% , tensao:");
+			valorRecebido(valorADC);
 				
 			dtostrf(vcc,4,2,buf);
 			printString(buf);
-			printString("v; ");
-			
-			
-			
-			
-			/* 
-		
-				int raw_temp;
-				while( ( ( raw_temp = raw() ) < 0 ) );
-				for( int i = 0; i < TEMPERATURE_SAMPLES; i++ ) {
-					readings[i] = raw_temp;
-				}
-			}		
-			*/
-
+			printString("v , temp_AVR:");
 			
 			
 			/* ======Temperatura=do=CHIP========*/
 			/* =================================*/
-			valorADC = coletarADC(_BV(MUX3));
+			valorADC = coletarADC( _BV(MUX3) );	// coleta o ADC8 (virtual)
 			
-			printString(" temp_chip: [");
-			itoa(valorADC, buf, 10); printString(buf);
-			printString("] ");
+			valorRecebido(valorADC);
 			
-				//tempChip = (valorADC * 1024) /1024; // por Roney
+				//tempChip = (valorADC * 1024) /1024;			// por Roney
 				tempChip = (valorADC - 125) * 1.075 / 10;		// exemplo de Peter Knight
 				
 			sprintf(buf, "%d", tempChip);
 			printString(buf);
-			printString(". \r\n");
+			printString(" graus.\r\n");
 			
 			PORTB &= ~(1<<LED01) & ~(1<<LED02);	// no final da rotina, apaga os leds
 			/* =================================*/
@@ -195,7 +167,7 @@ int main(void)
 				flipLed();
 				
 			}	
-			printString(" final.\r\n");
+			printString(" fim.\r\n");
 			PORTB &= ~(1<<LED01) & ~(1<<LED02);	// no final da rotina, apaga os leds
 		}
 		else
@@ -223,19 +195,16 @@ int main(void)
 		}
 		else
 		if (serialCharacter == '?')
-		hello();
+			hello();
 		else
 		if (serialCharacter == 13)
-		//printWord(010);
-		transmitByte(012);	// Line-Feed (control-J) depois do Carriage-Return (^M)
-		
+			transmitByte(012);	// Line-Feed (control-J) depois do Carriage-Return (^M)
 		else
 		{
 			transmitByte(serialCharacter);
 			PORTB &= ~(1<<LED01) & ~(1<<LED02);	// no final da rotina, apaga os leds
 		}
     }
-	
 	return(0);
 }
 
@@ -263,16 +232,13 @@ uint16_t  coletarADC (char multiplexador)
 	//ADCSRA &= ~(1<<ADEN);
 	//ADMUX	= 0b00000000;
 	ADMUX	= _BV(REFS0)|_BV(REFS1) ;	// inicia ADMUX 
-										// e configura voltagem referencia por 1.1v
-				
-	ADMUX	|=  multiplexador ;		// coleta analogica no pino multiplexador
+										// e configura voltagem referencia para 1.1v
+	ADMUX	|=  multiplexador ;			// coleta analogica no pino multiplexador
+	ADCSRA |= (1<<ADEN);				// habilita o AD
+	_delay_ms(20);						// pausa para estabilizacao da voltagem no AD
+	ADCSRA	|= (1<<ADSC);				// AD Start Conversion
 	
-	ADCSRA |= (1<<ADEN);
-	_delay_ms(20);
-				
-	ADCSRA	|= (1<<ADSC);		// AD Start Conversion
-	//dormirADC();
-	loop_until_bit_is_clear(ADCSRA, ADSC);
+	loop_until_bit_is_clear(ADCSRA, ADSC);	// espera num loop ate que o valor esteja disponivel
 	/* =================================*/
 	return ADC;
 };
@@ -281,4 +247,14 @@ void flipLed (void)
 {
 	PORTB ^= _BV(LED01);
 	PORTB ^= _BV(LED02);
+}
+
+void valorRecebido (uint16_t valor)
+{
+	char buffer[5];
+	
+	printString(" [");		// imprime entre cochetes o valor do ADC recebido
+	itoa(valor, buffer, 10);
+	printString(buffer);
+	printString("] ");
 }
