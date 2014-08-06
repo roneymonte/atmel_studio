@@ -69,7 +69,7 @@ int main(void)
 	uint16_t tempChip;		// temperatura interna do chip
 	uint8_t contador;		// contador para pisca-led
 	char serialCharacter;	// caractere recebido na console serial
-	char buf[16];			// buffer de string com ate 15 caracteres
+	char buf[7];			// buffer de string com ate 6 caracteres
 	
 	DDRB |= (1<<PB0) | (1<<PB5);		// leds vermelho e amarelo (conjunto)
 	DDRD |= (1<<PD6);					// led grande branco do PWM
@@ -100,7 +100,9 @@ int main(void)
 			printString("\rADC Luz:");
 			
 			valorADC = coletarADC( (1<<MUX1)|(1<<MUX0) );	// coleta o pino C3
-			luz = ( (valorADC*1	) / 1023 ) * 100;	// Resistor 4.7k down, e 10k antes do LDR com positivo
+			luz = ( (valorADC * 1.00	) / 1023 ) * 100;	// Resistor 4.7k down, e 10k antes do LDR com positivo
+			// OBS: eh necessario usar o numero 1 como 1.00 para que o FLOAT seja estipulado.
+			// caso contrario o numero calculado se comportara como inteiro.
 						
 			PORTB |= (1<<LED01);		// iniciando com led aceso
 			PORTB &= ~(1<<LED02);		// iniciando com led apagado
@@ -226,9 +228,6 @@ void hello (void)
 
 uint16_t  coletarADC (char multiplexador)
 {
-	/* ===========LUMINOSIDADE==========*/
-	/* =================================*/
-
 	//ADCSRA &= ~(1<<ADEN);
 	//ADMUX	= 0b00000000;
 	ADMUX	= _BV(REFS0)|_BV(REFS1) ;	// inicia ADMUX 
@@ -239,7 +238,6 @@ uint16_t  coletarADC (char multiplexador)
 	ADCSRA	|= (1<<ADSC);				// AD Start Conversion
 	
 	loop_until_bit_is_clear(ADCSRA, ADSC);	// espera num loop ate que o valor esteja disponivel
-	/* =================================*/
 	return ADC;
 };
 
