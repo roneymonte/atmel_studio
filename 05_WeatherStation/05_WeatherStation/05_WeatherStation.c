@@ -63,7 +63,7 @@ int main(void)
 {
 	uint16_t valorADC;		// coleta do ADC de 0 a 1023
 
-	float vcc;				// valor calculado para voltagem da bateria
+	//float vcc;				// valor calculado para voltagem da bateria
 	float luz;				// valor calculado para luminosidade
 
 	uint16_t tempChip;		// temperatura interna do chip
@@ -100,8 +100,8 @@ int main(void)
 			printString("\rADC Luz:");
 			
 			valorADC = coletarADC( (1<<MUX1)|(1<<MUX0) );	// coleta o pino C3
-			luz = ( (valorADC * 1.1) / 1023 ) * 100;	// 1.1v * 100 = 1100 para dar 100%
-			
+			luz = ( (valorADC*1	) / 1023 ) * 100;	// Resistor 4.7k down, e 10k antes do LDR com positivo
+						
 			PORTB |= (1<<LED01);		// iniciando com led aceso
 			PORTB &= ~(1<<LED02);		// iniciando com led apagado
 			
@@ -120,14 +120,14 @@ int main(void)
 			/* =================================*/
 			
 			valorADC = coletarADC ( (1<<MUX1) );	// coleta o pino C2
-			vcc = (valorADC * 4.4) / 1023;	// 4.4 volts foi o valor maximo medido no multimetro
-											// quando o ADC estava em 1023.
+			//vcc = (valorADC * 4.56) / 1023;	// 4.56 volts foi o valor maximo medido no multimetro
+											// quando o ADC estava em 1023, com sol pleno na placa solar
 
 			flipLed();
 			printString("% , tensao:");
 			valorRecebido(valorADC);
 				
-			dtostrf(vcc,4,2,buf);
+			dtostrf(((valorADC * 4.56) / 1023),4,2,buf);
 			printString(buf);
 			printString("v , temp_AVR:");
 			
@@ -141,7 +141,7 @@ int main(void)
 				//tempChip = (valorADC * 1024) /1024;			// por Roney
 				tempChip = (valorADC - 125) * 1.075 / 10;		// exemplo de Peter Knight
 				
-			sprintf(buf, "%d", tempChip);
+			sprintf(buf, "%d", tempChip );
 			printString(buf);
 			printString(" graus.\r\n");
 			
@@ -218,7 +218,7 @@ void dormirADC (void)
 void hello (void)
 {
 	
-	printString("\r\nWeather Station v1.0g by RM @ RJ - 05ago2014.\r\n");
+	printString("\r\nWeather Station v1.0h by RM @ RJ - 05ago2014.\r\n");
 	printString("pressione:\r\n* coleta de dados\r\n! piscaled 1 min\r\n0 status leds\r\n1 led branco\r\n");
 	printString("2 led vermelho\r\n3 led amarelo\r\n");
 	
