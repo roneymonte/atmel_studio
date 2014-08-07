@@ -37,6 +37,10 @@
   </dependencies>
 </framework-data>
     </AsfFrameworkConfig>
+    <SccProjectName>Svn</SccProjectName>
+    <SccProvider>SubversionScc</SccProvider>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccLocalPath>Svn</SccLocalPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -95,7 +99,40 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="05_WeatherStation.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="05_WeatherStation.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="06_I2C_WEATHERSTATION.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="06_I2C_WEATHERSTATION.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="i2c.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="i2c.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="MCP23008.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="MCP23008.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="pinDefines.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="setbaud.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="USART.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="USART.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
