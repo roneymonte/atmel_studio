@@ -19,6 +19,7 @@
 #define		BMP180_control_reg			0xF4	// Controle
 #define		BMP180_ler_temp_cmd			0x2E	// Ler Temperatura
 #define		BMP180_ler_pressao_cmd		0x34
+//#define		BMP180_ler_pressao_cmd		0x74
 
 #define		BMP180_temperature_data		0xF6	// Dado a ser retornado
 #define		BMP180_pressure_data		0xF6
@@ -54,3 +55,6 @@ long lerBMP180pressao (void);
 void BMP180conversor (long *temp, long *pressao);
 void BMP180calibragem (void);
 long lerBMP180 (unsigned char endereco);
+void leitura_rapida_bosch (void);
+void modoBosch (void);
+long BMP180_lerRapido (unsigned char endereco);

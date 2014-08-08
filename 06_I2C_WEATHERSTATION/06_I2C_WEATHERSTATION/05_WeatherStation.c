@@ -25,11 +25,17 @@
  * _ versao 1.0g - 05ago2014:
  *		- acerto do ADC com valores calibrados para bateria e luz
  * _ versao 1.0i - 07ago2014:
-		- finalizacao e encerramento do projeto 05, versao final.
+ *		- finalizacao e encerramento do projeto 05, versao final.
+ *
+ * _ versao 1.1 - 08ago2014:
+ *		- implementando I2C, problemas com o tamanho do codigo acima de 9K
+ *		  no carregamento via bootloader e Xbee
+ *
  */ 
 
 
 #include "05_WeatherStation.h"
+#include "06_I2C_WEATHERSTATION.h"
 
 void main_wx(void)
 {
@@ -39,15 +45,15 @@ void main_wx(void)
 	//float luz;				// valor calculado para luminosidade
 
 	
-	uint8_t contador;		// contador para pisca-led
+	//uint8_t contador;		// contador para pisca-led
 	char serialCharacter;	// caractere recebido na console serial
-	char buf[7];			// buffer de string com ate 6 caracteres
-		printString("\r\ngetChar>");
+	//char buf[7];			// buffer de string com ate 6 caracteres
+		printString("\r\n>");
 		serialCharacter = receiveByte();
 		
 		if (serialCharacter == '*')
 		{	
-			printString("\r\nLuz; Volt; TempAVR:\r\n");
+			//printString("\r\nLuzVoltTempAVR:\r\n");
 			/* ==============Luz=LDR============*/
 			getLuz();
 			/* =================================*/
@@ -62,35 +68,37 @@ void main_wx(void)
 			
 		}
 		else
+		/*
 		if (serialCharacter == '!')
 		{
 			PORTB |= (1<<LED01);		// iniciando com led aceso
 			PORTB &= ~(1<<LED02);		// iniciando com led apagado
 			
-			printString("\r\nContador: ");
+			printString("\r\nC:");
 			for(contador=0;contador<60;contador++)
 			{
 				
 				_delay_ms(500);
 				printString(itoa(contador,buf,10));
-				printString(",");
 				_delay_ms(500);		// pisca-leds por 60 segundos	
 				
 				flipLed();
 				
 			}	
-			printString(" fim.\r\n");
 			PORTB &= ~(1<<LED01) & ~(1<<LED02);	// no final da rotina, apaga os leds
 		}
 		else
+		*/
+		/*
 		if (serialCharacter == '0')
 		{
-			printString("\rLEDs [Verm, Amar], Brco: ");
-			printHexByte((PINB | LED01) & 0b1); printString(","); // B0
-			printHexByte((PINB | LED02) >>5 ); printString(","); // B5
-			printHexByte((PIND | LED03) >>6 & 0b1 ); printString("\r\n"); // D6
+			printString("\rVM,AM,BC:");
+			printHexByte((PINB | LED01) & 0b1); //printString(","); // B0
+			printHexByte((PINB | LED02) >>5 ); //printString(","); // B5
+			printHexByte((PIND | LED03) >>6 & 0b1 ); //printString("\r\n"); // D6
 		}
 		else
+		
 		if (serialCharacter == '1')
 		{
 			PORTD ^= _BV(LED03);
@@ -106,14 +114,18 @@ void main_wx(void)
 			PORTB ^= _BV(LED02);
 		}
 		else
+		*/
 		if (serialCharacter == '?')
 			hello();
 		else
-		if (serialCharacter == 13)
-			transmitByte(012);	// Line-Feed (control-J) depois do Carriage-Return (^M)
-		else
+		//if (serialCharacter == 13)
+		//	transmitByte(012);	// Line-Feed (control-J) depois do Carriage-Return (^M)
+		//else
 		if (serialCharacter == '_')
-		modoBosch();
+			modoBosch();
+		else
+		if (serialCharacter == '-')
+			leitura_rapida_bosch();
 		else
 		{
 			transmitByte(serialCharacter);
@@ -126,16 +138,15 @@ void main_wx(void)
 void iniciaPORTAS (void)
 {
 		DDRB |= (1<<PB0) | (1<<PB5);		// leds vermelho e amarelo (conjunto)
-		DDRD |= (1<<PD6);					// led grande branco do PWM
-		DDRD |= (1<<PD1);					// saida da UART TX
-		DDRD |= ~(1<<PD0);					// entrada da UART RX
+		DDRD |= (1<<PD6) | (1<<PD1);		// led grande branco PD6 do PWM, e saida da UART TX PD1
+		//DDRD |= ~(1<<PD0);					// entrada da UART RX
 				
-		PORTB &= ~(1<<LED01) | ~(1<<LED02);		// inicia com leds apagados
-		PORTD &= ~(1<<LED03);					// inicia led PWM apagado
+		//PORTB &= ~(1<<LED01) | ~(1<<LED02);		// inicia com leds apagados
+		//PORTD &= ~(1<<LED03);					// inicia led PWM apagado
 		
 		initUSART();						// por default essa biblioteca usa 9600 bps
 		//hello();							// imprime mensagem inicial na console
-		printString("\r\n? para help\r\n");
+		printString("\r\n? help\r\n");
 };
 
 void getLuz (void)
@@ -143,17 +154,15 @@ void getLuz (void)
 	uint16_t valorADC;		// coleta do ADC de 0 a 1023
 	char buf[7];
 				
-	printString("Luz:");
+	printString("L:");
 				
 	valorADC = coletarADC( (1<<MUX1)|(1<<MUX0) );	// coleta o pino C3
-	flipLed();
-	valorRecebido(valorADC);
+	//flipLed();
+	//valorRecebido(valorADC);
 	//luz = ( (valorADC * 1.00	) / 1023 ) * 100;
-	
 	//dtostrf(luz,3,0,buf);
 	
 	printString( dtostrf( ( ( (valorADC * 1.00	) / 1023 ) * 100 ) , 3 , 0 , buf) );
-	
 	
 	printString("%;");
 	flipLed();
@@ -164,12 +173,12 @@ void getVolt (void)
 	uint16_t valorADC;		// coleta do ADC de 0 a 1023
 	char buf[7];
 	
-	printString("Tensao:");
+	printString("T:");
 	
 	valorADC = coletarADC ( (1<<MUX1) );	// coleta o pino C2
-	flipLed();
-	;
-	valorRecebido(valorADC);
+	//flipLed();
+	
+	//valorRecebido(valorADC);
 
 	printString( dtostrf(((valorADC * 4.56) / 1023),4,2,buf) );
 	printString("v;");
@@ -182,11 +191,11 @@ void getTempAVR (void)
 	char buf[7];
 	//uint16_t tempChip;		// temperatura interna do chip
 	
-	printString("Temp_AVR:");
+	printString("AVR:");
 	valorADC = coletarADC( _BV(MUX3) );	// coleta o ADC8 (virtual)
-	flipLed();
+	//flipLed();
 				
-	valorRecebido(valorADC);
+	//valorRecebido(valorADC);
 				
 	//tempChip = (valorADC * 1024) /1024;			// por Roney
 	//tempChip = (valorADC - 125) * 1.075 / 10;		// exemplo de Peter Knight
@@ -194,25 +203,24 @@ void getTempAVR (void)
 	//printString( sprintf(NULL, "%d", tempChip ) );
 	printString( dtostrf( ((valorADC - 125) * 1.075 / 10), 2,1,buf ) );
 	printString("oC;");
-	flipLed();
+	//flipLed();
 				
 	//PORTB &= ~(1<<LED01) & ~(1<<LED02);	// no final da rotina, apaga os leds	
 }
 
-void dormirADC (void)
+/*void dormirADC (void)
 {
 	set_sleep_mode(SLEEP_MODE_ADC);
 	ADCSRA |= (1<<ADIE);
 	sei();
-}
+}*/
 
 void hello (void)
 {
-	
-	printString("\r\nWeather Station v1.0i by RM @ RJ - 07ago2014.\r\n");
-	printString("pressione:\r\n* coleta de dados\r\n! piscaled 1 min\r\n0 status leds\r\n1 led branco\r\n");
-	printString("2 led vermelho\r\n3 led amarelo\r\n");
-	
+	//printString("\r\nWX1.1 RM08ago14\r\n");
+	//printString("* coleta\r\n! pisca 1m\r\n0 status leds\r\n1/2/3 leds\r\n");
+	//printString("-/_ RoneyBMP/Bosch\r\n");
+	printString("\r*!0123-_\r\n");
 }
 
 uint16_t  coletarADC (char multiplexador)
@@ -236,12 +244,12 @@ void flipLed (void)
 	PORTB ^= _BV(LED02);
 }
 
-void valorRecebido (uint16_t valor)
+/*void valorRecebido (uint16_t valor)
 {
 	char buffer[5];
 	
-	printString(" [");		// imprime entre cochetes o valor do ADC recebido
+	printString("[");		// imprime entre cochetes o valor do ADC recebido
 	itoa(valor, buffer, 10);
 	printString(buffer);
-	printString("] ");
-}
+	printString("]");
+}*/

@@ -39,10 +39,10 @@ void iniciaPORTAS (void);
 void getLuz (void);
 void getVolt (void);
 void getTempAVR (void);
-void dormirADC (void);		// nao utilizado
+//void dormirADC (void);		// nao utilizado
 void hello (void);			// mensagem inicial
 uint16_t coletarADC (char multiplexador);	// leitura do ADC do MUX
 void flipLed (void);		// inverte LEDs 1 e 2
-void valorRecebido (uint16_t valor);
+//void valorRecebido (uint16_t valor);
 
 //EMPTY_INTERRUPT(ADC_vect);

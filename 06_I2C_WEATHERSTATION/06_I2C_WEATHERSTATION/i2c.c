@@ -31,22 +31,48 @@ void iniciaI2C(void)
 	*/
 	
 	// Init
-	TWBR = 32;				// Bit Rate = ~25 khz com clock de 1mhz
+	TWBR = 12;				// Bit Rate = ~25 khz com clock de 1mhz
 	TWCR |= (1<<TWEN);	// habilita o I2C
 	
+}
+
+void finalizaI2C(void)
+{
+	TWCR &= ~(1<<TWEN);
 }
 
 void i2cStart(void)
 {
 	// Start
-	TWCR = ( _BV(TWINT) | _BV(TWEN) | _BV(TWSTA) );
-	loop_until_bit_is_set (TWCR,TWINT);
+	TWCR = ( _BV(TWINT) | _BV(TWEN) | _BV(TWSTA) );	
+	// TWI InterruptFlag + TWI Enable + TWI Start
+	loop_until_bit_is_set (TWCR,TWINT);		//  TWI Interrupt Flag 
+}
+
+void i2cRestart(void)
+{
+	// Re-Start
+	TWCR = ( _BV(TWINT) | _BV(TWEN) | _BV(TWSTO) | _BV(TWSTA) );	
+	// TWI InterruptFlag + TWI Enable + TWI stop/Start
+	loop_until_bit_is_set (TWCR,TWINT);		//  TWI Interrupt Flag
+}
+void i2cAck(void)
+{
+	TWCR = ( _BV(TWINT) | _BV(TWEN) | _BV(TWEA) ); // TW EA = Ack
+	loop_until_bit_is_set (TWCR,TWINT);		//  TWI Interrupt Flag	
+}
+
+void i2cNotAck(void)
+{
+	TWCR = ( _BV(TWINT) | _BV(TWEN)  );
+	TWCR &= ~_BV(TWEA); // Not TWEA = Not Ack
+	loop_until_bit_is_set (TWCR,TWINT);		//  TWI Interrupt Flag
 }
 
 void i2cStop(void)
 {
 	// Stop
-	TWCR = ( _BV(TWINT) | _BV(TWEN) | _BV(TWSTO) );
+	TWCR = ( _BV(TWINT) | _BV(TWEN) | _BV(TWSTO) ); // TWI InterruptFlag + TWI Enable + TWI Stop
 }
 
 uint8_t i2cReadAck(void)

@@ -20,3 +20,7 @@ void i2cStop(void);
 uint8_t i2cReadAck(void);
 uint8_t i2cReadNoAck(void);
 void i2cSend(uint8_t data);
+void finalizaI2C(void);
+void i2cRestart(void);
+void i2cAck(void);
+void i2cNotAck(void);
