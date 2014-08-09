@@ -36,6 +36,7 @@
 
 #include "05_WeatherStation.h"
 #include "06_I2C_WEATHERSTATION.h"
+#include "i2c.h"
 
 void main_wx(void)
 {
@@ -48,7 +49,7 @@ void main_wx(void)
 	//uint8_t contador;		// contador para pisca-led
 	char serialCharacter;	// caractere recebido na console serial
 	//char buf[7];			// buffer de string com ate 6 caracteres
-		printString("\r\n>");
+		printString("\r\nv1.1a>");
 		serialCharacter = receiveByte();
 		
 		if (serialCharacter == '*')
@@ -89,16 +90,17 @@ void main_wx(void)
 		}
 		else
 		*/
-		/*
+		
 		if (serialCharacter == '0')
 		{
-			printString("\rVM,AM,BC:");
+			printString("\rVM,AM,BC,I2C:");
 			printHexByte((PINB | LED01) & 0b1); //printString(","); // B0
 			printHexByte((PINB | LED02) >>5 ); //printString(","); // B5
 			printHexByte((PIND | LED03) >>6 & 0b1 ); //printString("\r\n"); // D6
+			printHexByte((TWCR | TWEN)  >>2 & 0b1 );
 		}
 		else
-		
+		/*
 		if (serialCharacter == '1')
 		{
 			PORTD ^= _BV(LED03);
@@ -126,6 +128,12 @@ void main_wx(void)
 		else
 		if (serialCharacter == '-')
 			leitura_rapida_bosch();
+			else
+			if (serialCharacter == '(')
+			iniciaI2C();
+			else
+			if (serialCharacter == ')')
+			finalizaI2C();
 		else
 		{
 			transmitByte(serialCharacter);

@@ -21,7 +21,9 @@ void iniciaI2C(void)
 	
 	8MHz AVR TWBR = 0.5(8MHz/100kHz - 16) = 32
 	4MHz AVR TWBR = 0.5(4MHz/100kHz - 16) = 12
-	1mhz avr twbr = 0,5(1mhz/100hz - 16) = 0,5(10000 - 16)= 0,5(
+	1mhz avr twbr = 0,5(1mhz/100khz - 16) = 0,5(1.000.000 / 100.000 - 16)= 0,5(10-16)= Erro
+	-------------------------------------------------------------------------------------------
+	
 	1MHz AVR TWBR = 0.5(1MHz/50kHz - 16) = 2 (not recommended)
 	1MHz AVR TWBR = 0.5(1MHz/25kHz - 16) = 12
 

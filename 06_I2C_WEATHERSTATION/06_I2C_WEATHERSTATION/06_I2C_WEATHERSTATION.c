@@ -3,6 +3,8 @@
  *
  * Created: 07/08/2014 09:10:20
  *  Author: roney
+ *
+ * Versao 1.1a - 08/08/2014 - I2C conversando com BMP180
  */ 
 
 
@@ -84,8 +86,11 @@ long lerBMP180 (unsigned char endereco)
 
 		i2cStart();
 			i2cSend( BMP180_W );  // modo default de escrita
-			//i2cSend(BMP180_control_reg);
-		i2cSend(endereco);
+		i2cRestart();
+			i2cSend( BMP180_W );  
+			//i2cSend(BMP180_control_reg);	//neste caso da calibragem, basta enviar
+											//somente o endereco da eeprom diretamente
+			i2cSend(endereco);
 	// nao eh realmente necessario Stop antes de um Restart ? Nao,
 	// o proprio Restart ja gera um Stop implicitamente
 
@@ -93,6 +98,9 @@ long lerBMP180 (unsigned char endereco)
 	i2cRestart();
 	
 		i2cSend( BMP180_R);   // modo de leitura
+		//i2cSend(0xF6);		//comando para leitura
+		
+	//i2cRestart();
 	
 	msb = i2cReadAck();    // out_msb (0xF6)
 	//AckI2C();
@@ -119,21 +127,26 @@ long lerBMP180temperatura (void)
     i2cStart();
 		//printString(".");
         i2cSend( BMP180_W );
+	i2cRestart();
+		i2cSend( BMP180_W );
 		//printString(".");
         i2cSend(BMP180_control_reg); // campo de pedido
                         // ctrl_meas, 2bits_oss / sco / 4bits_controle
         //AckI2C();
 		//printString(".");
         i2cSend(BMP180_ler_temp_cmd); // pedindo as variaveis de temperatura
-    
-	//i2cStop();
 
         _delay_ms(5);  // espere pelo menos 4.5 ms
                         // (conversion time pressure max) para OSS 0 (1 sample)
                         // obs: PDF da Bosch somente indica delay para pressao
-		i2cRestart();
+	i2cRestart();
 		//printString(".");
+		i2cSend(BMP180_W);
+		i2cSend(0xF6);
+		
+	i2cRestart();
 		i2cSend(BMP180_R);
+		
 		//printString("]");
 		
         return ( (i2cReadAck()<<8 | i2cReadNoAck() ) ); // ira ler o campo de resultado 0xF6 (out_msb)
@@ -146,6 +159,8 @@ long lerBMP180pressao (void)
     i2cStart();
 		//printString(".");
         i2cSend(BMP180_W );
+	i2cRestart();
+		i2cSend(BMP180_W);
 		//printString(".");
         i2cSend(BMP180_control_reg); // campo de pedido
                         // ctrl_meas, 2bits_oss / sco / 4bits_controle
@@ -159,8 +174,11 @@ long lerBMP180pressao (void)
                     // (conversion time pressure max) para OSS 0 (1 sample)
 	//printString(".");
 	i2cRestart();
-	i2cSend(0xF6);
+		i2cSend(BMP180_W);
+		i2cSend(0xF6);
 	//printString("]");
+	i2cRestart();
+		i2cSend(BMP180_R);
     return ( (i2cReadAck()<<8|i2cReadNoAck()) ); // ira ler o campo de resultado 0xF6 (out_msb)
                                 // sendo long, mesclara com 0xF7 (out_lsb)
 }
@@ -177,12 +195,14 @@ void BMP180conversor (long *temp, long *pressaoL)
 	long x1, x2, b5, b6, x3, b3, p;
 	unsigned long b4, b7;
 
-	// ler a temperatura antes da pressao
-	printString("_temp_");
-	ut = lerBMP180temperatura();
-	printString("_pres_");
-	up = lerBMP180pressao();
-	printString("_CALC_\r\n");
+	iniciaI2C();
+		// ler a temperatura antes da pressao
+		printString("_temp_");
+		ut = lerBMP180temperatura();
+		printString("_pres_");
+		up = lerBMP180pressao();
+		printString("_CALC_\r\n");
+	finalizaI2C();
 
 	x1 = ((long) ut - ac6) * ac5 >> 15;
 	x2 = ((long) mc * 1 << 11) / (x1 + md);
@@ -319,11 +339,15 @@ long BMP180_lerRapido (unsigned char endereco)
 	uint16_t MSB, LSB;
 	
 	i2cStart();
-		i2cSend(BMP180_W);					// 0xEE Escreve o proximo byte, que eh:
+		i2cSend(BMP180_W);	
+	i2cRestart();
+		i2cSend(BMP180_W);				// 0xEE Escreve o proximo byte, que eh:
 		i2cSend(BMP180_control_reg);		// 0xF4 Controle de Registro
 		i2cSend(endereco);
+	i2cRestart();
 		_delay_ms(5);
-		//i2cSend(0xF6);						// 0xF6 = Posicao de Leitura de Resposta
+		i2cSend(BMP180_W);
+		i2cSend(0xF6);						// 0xF6 = Posicao de Leitura de Resposta
 	i2cRestart();
 		i2cSend(BMP180_R);					// 0xEF Envia o comando para efetuar a leitura
 		MSB = i2cReadAck();
