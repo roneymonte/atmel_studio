@@ -15,15 +15,23 @@
 #include <stdlib.h>
 #include <util/delay.h>
 
+#include "davidegironi/ds1307.h"
+
 #include "rotinas_projetos_anteriores.h"
+
+void agora (void);
 
 int main(void)
 {
-	char buf[7];
+	char buf[7]; // antes apenas 7 era o suficiente
 	uint8_t contador;
 
+	ds1307_init();
 	iniciaPORTAS();
-	printString("\r\nProj 07 Power Sleep. (10 seg delay)\r\n");
+	
+	printString("\r\nProj 07 Power Sleep. (10 seg RXTX delay)_");
+	agora();
+	
 
 	
 	/*
@@ -75,12 +83,12 @@ int main(void)
 		UCSR0B |= (1<<RXCIE0);				// Habilita a Interrupcao de RX no controle da USART
 		sei();
 		_delay_ms(10000);
-		cli();
+		
 		
 	printString("\r\nLoop em Sleep Mode - Serial RX para Acordar.\r\n");
     while(1)
     {
-		
+		cli();
 		for (contador=0;contador<3;contador++)
 		{
 		printString(	dtostrf(	(	(getVolt()*4.56) / 1023	)	,	4	,	2	,		buf)	);
@@ -91,10 +99,11 @@ int main(void)
 		printString(" oC\r\n");
 		_delay_ms(3333);
 		}
+		agora();		
 		
 		//ADCSRA = 0;
 		
-		cli();								// limpa todos interrupts, desabilitando-os
+										// limpa todos interrupts, desabilitando-os
 		
 		set_sleep_mode(SLEEP_MODE_IDLE);	// configura o MODO de sleep
 		
@@ -121,8 +130,8 @@ int main(void)
 		
 		printString("...Acordou!\r\n");
 		sleep_disable();
-		
 		power_all_enable();
+		agora();
 		
     }
 }
@@ -133,8 +142,6 @@ ISR(USART_RX_vect)
 	
 	BYTESERIAL = receiveByte();
 	transmitByte(BYTESERIAL);
-	
-	//sleep_disable();
 }
 
 /*
@@ -169,3 +176,17 @@ power_timer0_disable;
 PRR |= (1<<power_twi_disable);
 
 */
+
+void agora (void)
+{
+	char buf[20];
+	uint8_t year = 0;
+	uint8_t month = 0;
+	uint8_t day = 0;
+	uint8_t hour = 0;
+	uint8_t minute = 0;
+	uint8_t second = 0;
+	ds1307_getdate(&year, &month, &day, &hour, &minute, &second);
+	sprintf(buf, "%d/%d/%d %d:%d:%d\r\n", day, month, year, hour, minute, second);;
+	printString(buf);
+}
