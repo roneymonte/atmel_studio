@@ -3,10 +3,15 @@
  *
  * Created: 09/08/2014 16:50:49
  *  Author: roney
+ *
+ * Este program tem o intuito de testar o SLEEP MODE pelas seguintes formas:
+ *	0)	Dormir indefinidamente ate que a USART RX gere uma Interrupcao
+ *	1)	Dormir por 1 hora, acordando a cada 5 minutos (checagem em 8 x 8 seg) com WDT de 8 seg
+ *	2)	Dormir indefinidamente, acordando a cada 5 minutos (checagem em 8 x 8 seg) com WDT de 8 seg
+ *
  */ 
 
 #define F_CPU 1000000L
-
 
 #include <avr/io.h>
 #include <avr/power.h>
@@ -14,25 +19,46 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 #include <util/delay.h>
+#include <avr/wdt.h>
 
 #include "davidegironi/ds1307.h"
 
 #include "rotinas_projetos_anteriores.h"
 
-void agora (void);
+uint16_t agora (void);
+void habilitarWDT (void);
+void getEnv (void);
+
+char MODO = '0';
 
 int main(void)
 {
 	char buf[7]; // antes apenas 7 era o suficiente
 	uint8_t contador;
+	uint16_t horaMinuto;
+	
+	uint16_t	horaDesperto;
+	uint8_t		ciclosWDTSono;
 
 	ds1307_init();
 	iniciaPORTAS();
 	
-	printString("\r\nProj 07 Power Sleep. (10 seg RXTX delay)_");
+	// MCUSR – MCU Status Register
+	// The MCU Status Register provides information on which reset source caused an MCU reset.
+	
+	printString("MCU Status Register:");
+	printHexByte(  ((MCUSR | WDRF)  &0b1000 >> 3) );
+	printString(",");
+	printHexByte(  ((MCUSR | BORF)  &0b0100 >> 2) );
+	printString(",");
+	printHexByte(  ((MCUSR | EXTRF) &0b0010 >> 1) );
+	printString(",");
+	printHexByte(  ((MCUSR | PORF)  &0b0001     ) );
+	printString("\r\nProj 07 v1.0b PowerSleepWDT_");
 	agora();
 	
 
+	//WDTCSR – Watchdog Timer Control Register
 	
 	/*
 	When the Brown-out Detector (BOD) is enabled by BODLEVEL fuses, Table 28-6 on page 293,
@@ -85,53 +111,98 @@ int main(void)
 		_delay_ms(10000);
 		
 		
-	printString("\r\nLoop em Sleep Mode - Serial RX para Acordar.\r\n");
+	printString("\r\nLoop Sleep Indefinido - RXINT.\r\n");
     while(1)
     {
 		cli();
 		for (contador=0;contador<3;contador++)
 		{
-		printString(	dtostrf(	(	(getVolt()*4.56) / 1023	)	,	4	,	2	,		buf)	);
-		printString("v / ");
-		printString(	dtostrf(	(	((getLuz() * 1.00)	 / 1023 ) * 100 ) , 3 , 0 ,		buf)	);
-		printString("% / ");
-		printString(	dtostrf(	(	(getTempAVR() - 125) * 1.075 / 10), 2 , 1 ,			buf)	);
-		printString(" oC\r\n");
-		_delay_ms(3333);
+			getEnv();
+			_delay_ms(3333);
 		}
-		agora();		
+		horaMinuto=agora();		
 		
-		//ADCSRA = 0;
+		if(MODO=='0')		// o MODO 0 caracteriza-se por dormir indefinidamente
+							// ate que uma interrupcao na USART acorde o MCU
+		{
+			set_sleep_mode(SLEEP_MODE_IDLE);	// configura o MODO de sleep
+			sei();								// habilita todos interrupts
 		
-										// limpa todos interrupts, desabilitando-os
+			//printString("Habilitando Sleep.\r\n");
+			sleep_enable();						// habilita a dormirda
 		
-		set_sleep_mode(SLEEP_MODE_IDLE);	// configura o MODO de sleep
+			power_adc_disable();
+			power_spi_disable();
+			power_timer0_disable();
+			power_timer1_disable();
+			power_timer2_disable();
+			power_twi_disable();
 		
+			sleep_bod_disable();				// desliga o comparador de voltagem do BOD
+		
+			printString("dormindo...");
+			sleep_mode();						// realmente coloca para dormir
+			/*--------------------------------------------------------------*/
+			printString("...Acordou!\r\n");
+			sleep_disable();
+			power_all_enable();
+			agora();
+		}
+		else
+		{
+			printString("\r\nLoop em Sono profundo de 1h/5m.\r\n_");
+			ciclosWDTSono=0;	// Marca ZERO ciclos de Sleep com WDT
+			
+			while (MODO=='1' | MODO=='2')	// o Modo 1 eh o Sleep com WDT de no maximo 1h
+											// o Modo 2 eh o Sleep com WDT sem hora para realmente acordar
+			{
+				////////////////////////////////////////////////////
 
-		
-		sei();								// habilita todos interrupts
-		
-        
-		//printString("Habilitando Sleep.\r\n");
-		sleep_enable();						// poe para dormir
-		
-		power_adc_disable();
-		power_spi_disable();
-		power_timer0_disable();
-		power_timer1_disable();
-		power_timer2_disable();
-		power_twi_disable();
-		
-		//printString("Desabilitando BOD.\r\n");
-		sleep_bod_disable();
-		
-		printString("dormindo...");
-		sleep_mode();
-		
-		printString("...Acordou!\r\n");
-		sleep_disable();
-		power_all_enable();
-		agora();
+				
+				//UCSR0B &= ~(1<<RXCIE0);	// Deabilita a Interrupcao de RX no controle da USART
+				sei();					// Habilita interrupcoes, por causa do WDT
+				
+				habilitarWDT();		// coloca a CPU para dormir
+									// sendo acordada 8 segundos depois pelo WDT
+									
+				ciclosWDTSono++;	// computa mais um ciclo de WDT de 8 segundos
+				
+				if (ciclosWDTSono >= 8)	// que os ciclos de sleep+WDT forem maiores que 8 (64 segundos)
+				{
+					ciclosWDTSono=0;	// zera o contador de ciclos a cada "minuto" (ou mais segundos) de sono
+					horaDesperto = agora();	// registra o horario (HORA*MIN) da acordada do WDT
+					
+					////////////////////////////////////////////////////				
+					if( ( horaDesperto - horaMinuto ) >= 5 )		// testa se ja fazem mais de 5 minutos que dormi
+					{
+						//
+						getEnv();
+						printString("Rapida acordada 5min ");
+						printString( itoa(horaDesperto,buf,10) );
+						printString(" ZZzzzz\r\n_");
+						//
+					}
+					////////////////////////////////////////////////////				
+					if ( ( horaDesperto - horaMinuto ) >= 60 )	// testa se ja faz mais de 1 hora que dormi
+					{
+						//
+						if (MODO=='1')
+						{
+							MODO='0';	// forcar para sair do MODO 1 (WDT) e voltar para o MODO 0 (USART RX INT)
+							printString("Saindo do Modo Sono de 1 hora.\r\n_");
+						}
+						else
+						{
+							horaMinuto=agora();	// fala que o inicio da dormida de 1h passa a ser agora, novamente
+							printString("Dormindo por mais 1 horinha...\r\n_");
+						}
+						//
+					}
+					////////////////////////////////////////////////////
+					_delay_ms(2000);	
+				}
+			}
+		}
 		
     }
 }
@@ -142,6 +213,27 @@ ISR(USART_RX_vect)
 	
 	BYTESERIAL = receiveByte();
 	transmitByte(BYTESERIAL);
+	if(BYTESERIAL=='0') MODO='0';
+	else if(BYTESERIAL=='1') MODO='1';
+	else if(BYTESERIAL=='2') MODO='2';
+}
+
+ISR(WDT_vect)
+{
+	wdt_disable();
+}
+
+
+void getEnv (void)
+{
+	char buf[7];
+	
+			printString(	dtostrf(	(	(getVolt()*4.56) / 1023	)	,	4	,	2	,		buf)	);
+			printString("v / ");
+			printString(	dtostrf(	(	((getLuz() * 1.00)	 / 1023 ) * 100 ) , 3 , 0 ,		buf)	);
+			printString("% / ");
+			printString(	dtostrf(	(	(getTempAVR() - 125) * 1.075 / 10), 2 , 1 ,			buf)	);
+			printString(" oC\r\n");
 }
 
 /*
@@ -177,7 +269,7 @@ PRR |= (1<<power_twi_disable);
 
 */
 
-void agora (void)
+uint16_t agora (void)
 {
 	char buf[20];
 	uint8_t year = 0;
@@ -186,7 +278,51 @@ void agora (void)
 	uint8_t hour = 0;
 	uint8_t minute = 0;
 	uint8_t second = 0;
+	
 	ds1307_getdate(&year, &month, &day, &hour, &minute, &second);
-	sprintf(buf, "%d/%d/%d %d:%d:%d\r\n", day, month, year, hour, minute, second);;
-	printString(buf);
+	
+	if (MODO=='0')
+	{
+		sprintf(buf, "%d/%d/%d %d:%d:%d\r\n", day, month, year, hour, minute, second);;
+		printString(buf);
+	}
+		
+	return ((hour*60)+minute);	// faz um calculo para um unico inteiro representando hora e minuto
+}
+
+void habilitarWDT (void)
+{
+		MCUSR = 0;							// Limpa o Status Register de inicio da MCU
+		
+		WDTCSR = _BV (WDCE) | _BV (WDE);	// Bit 4 – WDCE: Watchdog Change Enable
+											// Bit 3 – WDE: Watchdog System Reset Enable
+											
+		WDTCSR = _BV (WDIE) | _BV (WDP3) | _BV (WDP0);    // set WDIE, and 8 seconds delay
+											/*
+											Bit 6 – WDIE: Watchdog Interrupt Enable
+											WDP[3:0]: Watchdog Timer Prescaler 3, 2, 1 and 0
+											0 0 0 0 2K		(2048)		cycles	16 ms
+											0 0 0 1 4K		(4096)		cycles	32 ms
+											0 0 1 0 8K		(8192)		cycles	64 ms
+											0 0 1 1 16K		(16384)		cycles	0.125 s
+											0 1 0 0 32K		(32768)		cycles	0.25 s
+											0 1 0 1 64K		(65536)		cycles	0.5 s
+											0 1 1 0 128K	(131072)	cycles	1.0 s
+											0 1 1 1 256K	(262144)	cycles	2.0 s
+											1 0 0 0 512K	(524288)	cycles	4.0 s
+											1 0 0 1 1024K	(1048576)	cycles	8.0
+											*/
+		wdt_reset();		// Limpa o Status do WDT
+		ADCSRA = 0;			// Desabilita o ADC
+
+		set_sleep_mode (SLEEP_MODE_PWR_DOWN);	// Modo de Sleep como Power Down 
+		sleep_enable();							// Habilita o Sleep
+
+		// turn off brown-out enable in software
+		//MCUCR = _BV (BODS) | _BV (BODSE);
+		//MCUCR = _BV (BODS);
+		sleep_bod_disable(); // Faz o mesmo que as intrucoes acima
+		
+		sleep_cpu ();		// Coloca para dormir por 8 segundos
+		sleep_disable();	// Na volta ou ACORDADA, desabilita o sleep
 }
