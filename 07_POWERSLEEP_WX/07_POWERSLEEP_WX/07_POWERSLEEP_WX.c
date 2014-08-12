@@ -4,10 +4,23 @@
  * Created: 09/08/2014 16:50:49
  *  Author: roney
  *
+ * Projeto adicionado complementarmente ao projeto da Weather Station, para testar
+ * preservacao de energia, ja que a mesma eh alimentada por bateria e placa solar.
+ * 
+ * Durante periodos prolongados sem luz solar, a bateria estava perdendo muita carga.
+ * Varios dispositivos (ponte de resistores, LDR, I2C, etc estavam consumindo energia.
+ * Uma das solucoes foi controla-los atraves de um MOSFET que desliga-os quando nao necessario.
+ *
  * Este program tem o intuito de testar o SLEEP MODE pelas seguintes formas:
  *	0)	Dormir indefinidamente ate que a USART RX gere uma Interrupcao
  *	1)	Dormir por 1 hora, acordando a cada 5 minutos (checagem em 8 x 8 seg) com WDT de 8 seg
  *	2)	Dormir indefinidamente, acordando a cada 5 minutos (checagem em 8 x 8 seg) com WDT de 8 seg
+ *
+ * v1.0 - utilizada biblioteca I2C para DS1307 de http://davidegironi.blogspot.com.br/
+ *
+ * v1.1 - 12/08/2014 - adicionado MOSFET N-Channel para ligar/desligar os perifericos (I2C, ADC, etc)
+ *		- Este mosfet tem o gate acionado na porta PD7.
+ *		- Implementado o MCP23008 da placa de desenvolvimento PicKit2 Serial I2C DemoBoard
  *
  */ 
 
@@ -22,14 +35,14 @@
 #include <avr/wdt.h>
 
 #include "davidegironi/ds1307.h"
-
 #include "rotinas_projetos_anteriores.h"
+#include "mcp23008_leds.h"
 
 uint16_t agora (void);
 void habilitarWDT (void);
 void getEnv (void);
 
-char MODO = '0';
+char MODO = '0';	// variavel global de definicao de modo de operacao (0, 1 ou 2)
 
 int main(void)
 {
@@ -40,8 +53,12 @@ int main(void)
 	uint16_t	horaDesperto;
 	uint8_t		ciclosWDTSono;
 
-	ds1307_init();
 	iniciaPORTAS();
+	
+	PORTD |= (1<<PD7);					// liga MOSFET
+	_delay_ms(20);						// espera 20ms para energizar os circuitos
+	
+	ds1307_init();
 	
 	// MCUSR – MCU Status Register
 	// The MCU Status Register provides information on which reset source caused an MCU reset.
@@ -54,7 +71,7 @@ int main(void)
 	printHexByte(  ((MCUSR | EXTRF) &0b0010 >> 1) );
 	printString(",");
 	printHexByte(  ((MCUSR | PORF)  &0b0001     ) );
-	printString("\r\nProj 07 v1.0b PowerSleepWDT_");
+	printString("\r\nProj 07 v1.1 PowerSleepWDT_");
 	agora();
 	
 
@@ -122,11 +139,15 @@ int main(void)
 		}
 		horaMinuto=agora();		
 		
+		
 		if(MODO=='0')		// o MODO 0 caracteriza-se por dormir indefinidamente
 							// ate que uma interrupcao na USART acorde o MCU
 		{
 			set_sleep_mode(SLEEP_MODE_IDLE);	// configura o MODO de sleep
 			sei();								// habilita todos interrupts
+			
+			liga_mcp23008();
+			seqLed_mcp23008();
 		
 			//printString("Habilitando Sleep.\r\n");
 			sleep_enable();						// habilita a dormirda
@@ -140,29 +161,43 @@ int main(void)
 		
 			sleep_bod_disable();				// desliga o comparador de voltagem do BOD
 		
+			PORTD &= ~(1<<PD7);					// desliga MOSFET
+		
 			printString("dormindo...");
 			sleep_mode();						// realmente coloca para dormir
 			/*--------------------------------------------------------------*/
 			printString("...Acordou!\r\n");
 			sleep_disable();
+			
+			PORTD |= (1<<PD7);					// liga MOSFET
+			_delay_ms(20);						// espera 20ms para energizar os circuitos
+			
 			power_all_enable();
 			agora();
 		}
 		else
 		{
-			printString("\r\nLoop em Sono profundo de 1h/5m.\r\n_");
-			ciclosWDTSono=0;	// Marca ZERO ciclos de Sleep com WDT
+			printString("\r\nLoop Sono de 1h/5m (64s/64s).\r\n_");
+			
+			// Marca ZERO ciclos de Sleep com WDT
+			ciclosWDTSono=0;	
 			
 			while (MODO=='1' | MODO=='2')	// o Modo 1 eh o Sleep com WDT de no maximo 1h
 											// o Modo 2 eh o Sleep com WDT sem hora para realmente acordar
 			{
-				////////////////////////////////////////////////////
+				//////////////////////////////////////////////////////
+				// OBS: nao foi feita restricao de integridade para //
+				// horarios que rodem a meia-noite, pois isso iria  //
+				// causar uma subtracao negativa no calculo de tempo//
+				// decorrido.                                       //
+				//////////////////////////////////////////////////////
 
-				
 				//UCSR0B &= ~(1<<RXCIE0);	// Deabilita a Interrupcao de RX no controle da USART
 				sei();					// Habilita interrupcoes, por causa do WDT
 				
-				habilitarWDT();		// coloca a CPU para dormir
+				PORTD &= ~(1<<PD7);					// desliga MOSFET
+				
+				habilitarWDT();		// coloca a CPU para dormir em SLEEP_MODE_PWR_DOWN
 									// sendo acordada 8 segundos depois pelo WDT
 									
 				ciclosWDTSono++;	// computa mais um ciclo de WDT de 8 segundos
@@ -170,20 +205,37 @@ int main(void)
 				if (ciclosWDTSono >= 8)	// que os ciclos de sleep+WDT forem maiores que 8 (64 segundos)
 				{
 					ciclosWDTSono=0;	// zera o contador de ciclos a cada "minuto" (ou mais segundos) de sono
+					
+					PORTD |= (1<<PD7);					// liga MOSFET
+					_delay_ms(20);						// espera 20ms para energizar os circuitos
+					
+					liga_mcp23008();
+					seqLed_mcp23008();
+					
 					horaDesperto = agora();	// registra o horario (HORA*MIN) da acordada do WDT
 					
+					//printString("\r\nDormiu=");
+					//printString( itoa(horaMinuto,buf,10) );
+					//printString(", ");
+					
 					////////////////////////////////////////////////////				
-					if( ( horaDesperto - horaMinuto ) >= 5 )		// testa se ja fazem mais de 5 minutos que dormi
+					if( ( (horaDesperto-horaMinuto) / 5.0 ) == round((horaDesperto-horaMinuto)/5) )		
+						// testa se ja fazem mais de 5 minutos que dormi
 					{
 						//
 						getEnv();
-						printString("Rapida acordada 5min ");
-						printString( itoa(horaDesperto,buf,10) );
-						printString(" ZZzzzz\r\n_");
+						//printString("Rapida acordada=");
+						//printString( itoa(horaDesperto,buf,10) );
+						printString(" ZZzzzz dif=");
+						
+						printString( itoa(( horaDesperto - horaMinuto) ,buf,10) );
+						printString("min.\r\n");
+						_delay_ms(2000);
 						//
 					}
 					////////////////////////////////////////////////////				
-					if ( ( horaDesperto - horaMinuto ) >= 60 )	// testa se ja faz mais de 1 hora que dormi
+					if ( ((horaDesperto-horaMinuto)/60.0) == round((horaDesperto-horaMinuto)/60) )	
+						// testa se ja faz mais de 1 hora que dormi
 					{
 						//
 						if (MODO=='1')
@@ -213,9 +265,14 @@ ISR(USART_RX_vect)
 	
 	BYTESERIAL = receiveByte();
 	transmitByte(BYTESERIAL);
-	if(BYTESERIAL=='0') MODO='0';
-	else if(BYTESERIAL=='1') MODO='1';
-	else if(BYTESERIAL=='2') MODO='2';
+	
+	if(BYTESERIAL=='0') MODO='0';		// MODO 0 sleep ate que receba byte na USART
+	else if(BYTESERIAL=='1') MODO='1';	// MODO 1 aciona sleep 64s/64s/contador de 5m/5m ate 1h
+	else if(BYTESERIAL=='2') MODO='2';	// MODO 2 aciona sleep 64s/64s/contador de 5m/5m sem termino
+	else if(BYTESERIAL=='L')	{		// 'L' gera sequencial de LEDs no MCP23008
+									liga_mcp23008(); 
+									seqLed_mcp23008(); 
+								}	// L gera sequencia de LEDs no MCP23008
 }
 
 ISR(WDT_vect)

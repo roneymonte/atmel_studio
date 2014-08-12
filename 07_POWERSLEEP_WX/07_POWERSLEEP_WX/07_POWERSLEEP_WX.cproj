@@ -107,6 +107,12 @@
     <Compile Include="i2cmaster.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="mcp23008_leds.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="mcp23008_leds.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="pinDefines.h">
       <SubType>compile</SubType>
     </Compile>

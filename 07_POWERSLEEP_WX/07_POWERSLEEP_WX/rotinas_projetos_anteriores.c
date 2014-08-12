@@ -16,6 +16,9 @@ void iniciaPORTAS (void)
 	//DDRB |= (1<<PB0) | (1<<PB5);		// leds vermelho e amarelo (conjunto)
 	//DDRD |= (1<<PD6) | (1<<PD1);		// led grande branco PD6 do PWM, e saida da UART TX PD1
 	
+	PORTD &= ~(1<<PD7);					// forca o Pull-Down da porta antes de configura-la
+	DDRD |= (1<<PD7);					// configura porta de saida de controle do GATE do MOSFET
+	
 	initUSART();						// por default essa biblioteca usa 9600 bps
 };
 
@@ -24,6 +27,9 @@ uint16_t  coletarADC (char multiplexador)
 {
 	//ADCSRA &= ~(1<<ADEN);
 	//ADMUX	= 0b00000000;
+	//PORTD |= (1<<PD7);					// liga MOSFET
+	//_delay_ms(20);						// espera 20ms para energizar os circuitos
+	
 	ADMUX	= _BV(REFS0)|_BV(REFS1) ;	// inicia ADMUX
 	// e configura voltagem referencia para 1.1v
 	
@@ -35,6 +41,7 @@ uint16_t  coletarADC (char multiplexador)
 	loop_until_bit_is_clear(ADCSRA, ADSC);	// espera num loop ate que o valor esteja disponivel
 	
 	//ADCSRA &= ~(1<<ADEN);				// Seria aconselhavel DESLIGAR o ADC depois da operacao
+	//PORTD &= ~(1<<PD7);					// desliga MOSFET
 	return ADC;
 }
 
