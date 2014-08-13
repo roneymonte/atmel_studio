@@ -28,3 +28,4 @@
 #include <util/delay.h>
 
 void seqLed_mcp23008 (void);
+void liga_mcp23008 (void);

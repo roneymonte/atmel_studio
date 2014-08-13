@@ -48,17 +48,13 @@ int main(void)
 {
 	char buf[7]; // antes apenas 7 era o suficiente
 	uint8_t contador;
-	uint16_t horaMinuto;
-	
-	uint16_t	horaDesperto;
-	uint8_t		ciclosWDTSono;
+
+	uint8_t	ciclosWDTSono, min5s300;
 
 	iniciaPORTAS();
 	
 	PORTD |= (1<<PD7);					// liga MOSFET
 	_delay_ms(20);						// espera 20ms para energizar os circuitos
-	
-	ds1307_init();
 	
 	// MCUSR – MCU Status Register
 	// The MCU Status Register provides information on which reset source caused an MCU reset.
@@ -71,9 +67,7 @@ int main(void)
 	printHexByte(  ((MCUSR | EXTRF) &0b0010 >> 1) );
 	printString(",");
 	printHexByte(  ((MCUSR | PORF)  &0b0001     ) );
-	printString("\r\nProj 07 v1.1b PowerSleepWDT_");
-	agora();
-	
+	printString("\r\nProj 07B v1.1b PSW (sem RTC)");	
 
 	//WDTCSR – Watchdog Timer Control Register
 	
@@ -137,7 +131,7 @@ int main(void)
 			getEnv();
 			_delay_ms(3333);
 		}
-		horaMinuto=agora();		
+			
 		
 		
 		if(MODO=='0')		// o MODO 0 caracteriza-se por dormir indefinidamente
@@ -173,7 +167,7 @@ int main(void)
 			_delay_ms(20);						// espera 20ms para energizar os circuitos
 			
 			power_all_enable();
-			agora();
+			
 		}
 		else
 		{
@@ -181,17 +175,11 @@ int main(void)
 			
 			// Marca ZERO ciclos de Sleep com WDT
 			ciclosWDTSono=0;	
+			min5s300=0;			// contador multiplo de 5 minutos (ou 300 seg)
 			
-			while (MODO=='1' | MODO=='2')	// o Modo 1 eh o Sleep com WDT de no maximo 1h
+			while ( (MODO=='1') | (MODO=='2') )	// o Modo 1 eh o Sleep com WDT de no maximo 1h
 											// o Modo 2 eh o Sleep com WDT sem hora para realmente acordar
 			{
-				//////////////////////////////////////////////////////
-				// OBS: nao foi feita restricao de integridade para //
-				// horarios que rodem a meia-noite, pois isso iria  //
-				// causar uma subtracao negativa no calculo de tempo//
-				// decorrido.                                       //
-				//////////////////////////////////////////////////////
-
 				//UCSR0B &= ~(1<<RXCIE0);	// Deabilita a Interrupcao de RX no controle da USART
 				sei();					// Habilita interrupcoes, por causa do WDT
 				
@@ -202,54 +190,30 @@ int main(void)
 									
 				ciclosWDTSono++;	// computa mais um ciclo de WDT de 8 segundos
 				
-				if (ciclosWDTSono >= 8)	// que os ciclos de sleep+WDT forem maiores que 8 (64 segundos)
+				if (ciclosWDTSono >= 37)	// ciclos de sleep+WDT forem maiores que 37 (8s*37 = 300s = 5min )
 				{
 					ciclosWDTSono=0;	// zera o contador de ciclos a cada "minuto" (ou mais segundos) de sono
-					
+					min5s300++;			// incrementa o contador de 5 minutos
 					PORTD |= (1<<PD7);					// liga MOSFET
 					_delay_ms(20);						// espera 20ms para energizar os circuitos
 					
 					liga_mcp23008();
 					seqLed_mcp23008();
 					
-					horaDesperto = agora();	// registra o horario (HORA*MIN) da acordada do WDT
-					
-					//printString("\r\nDormiu=");
-					//printString( itoa(horaMinuto,buf,10) );
-					//printString(", ");
-					
 					////////////////////////////////////////////////////				
-					if( ( (horaDesperto-horaMinuto) / 5.0 ) == round((horaDesperto-horaMinuto)/5) )		
-						// testa se ja fazem mais de 5 minutos que dormi
-					{
-						//
+
+						printString( itoa(( min5s300 * 5) ,buf,10) );
+						printString("min _ \r\n");
 						getEnv();
-						//printString("Rapida acordada=");
-						//printString( itoa(horaDesperto,buf,10) );
-						printString(" ZZzzzz dif=");
-						
-						printString( itoa(( horaDesperto - horaMinuto) ,buf,10) );
-						printString("min.\r\n");
 						_delay_ms(2000);
-						//
-					}
+
 					////////////////////////////////////////////////////				
-					if ( ((horaDesperto-horaMinuto)/60.0) == round((horaDesperto-horaMinuto)/60) )	
-						// testa se ja faz mais de 1 hora que dormi
-					{
-						//
-						if (MODO=='1')
+					if ( (min5s300 == 12) & (MODO=='1'))	
+						// testa se ja faz 1 hora que dormi
 						{
 							MODO='0';	// forcar para sair do MODO 1 (WDT) e voltar para o MODO 0 (USART RX INT)
 							printString("Saindo do Modo Sono de 1 hora.\r\n_");
 						}
-						else
-						{
-							horaMinuto=agora();	// fala que o inicio da dormida de 1h passa a ser agora, novamente
-							printString("Dormindo por mais 1 horinha...\r\n_");
-						}
-						//
-					}
 					////////////////////////////////////////////////////
 					_delay_ms(2000);	
 				}
@@ -329,27 +293,6 @@ power_timer0_disable;
 PRR |= (1<<power_twi_disable);
 
 */
-
-uint16_t agora (void)
-{
-	char buf[20];
-	uint8_t year = 0;
-	uint8_t month = 0;
-	uint8_t day = 0;
-	uint8_t hour = 0;
-	uint8_t minute = 0;
-	uint8_t second = 0;
-	
-	ds1307_getdate(&year, &month, &day, &hour, &minute, &second);
-	
-	if (MODO=='0')
-	{
-		sprintf(buf, "%d/%d/%d %d:%d:%d\r\n", day, month, year, hour, minute, second);;
-		printString(buf);
-	}
-		
-	return ((hour*60)+minute);	// faz um calculo para um unico inteiro representando hora e minuto
-}
 
 void habilitarWDT (void)
 {

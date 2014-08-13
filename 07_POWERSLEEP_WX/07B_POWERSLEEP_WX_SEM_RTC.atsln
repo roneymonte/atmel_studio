@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Atmel Studio Solution File, Format Version 11.00
-Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "07_POWERSLEEP_WX", "07_POWERSLEEP_WX\07_POWERSLEEP_WX.cproj", "{0968B795-36E6-4AAD-83B7-638370AEA130}"
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "07B_POWERSLEEP_WX_SEM_RTC", "07_POWERSLEEP_WX\07B_POWERSLEEP_WX_SEM_RTC.cproj", "{0968B795-36E6-4AAD-83B7-638370AEA130}"
 EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
