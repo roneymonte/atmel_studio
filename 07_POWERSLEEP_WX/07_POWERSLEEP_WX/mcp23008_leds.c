@@ -6,6 +6,7 @@
  */ 
 
 #define F_CPU 1000000L
+#define DELAY 60
 
 #include "mcp23008_leds.h"
 
@@ -21,7 +22,7 @@ void liga_mcp23008 (void)
 	i2c_write(GPIO);
 	i2c_write(0b1);	// liga o primeiro LED GP0
 	i2c_stop();
-	_delay_ms(100);
+	_delay_ms(DELAY);
 	/*
 	i2c_rep_start(MCP23008_ID);
 	i2c_write(GPIO);
@@ -43,7 +44,7 @@ void seqLed_mcp23008 (void)
 		i2c_write(GPIO);
 		i2c_write(contador);
 		i2c_stop();
-		_delay_ms(100);
+		_delay_ms(DELAY);
 	}
 	
 	while (contador!=0b0)
@@ -53,7 +54,7 @@ void seqLed_mcp23008 (void)
 		i2c_write(GPIO);
 		i2c_write(contador);
 		i2c_stop();
-		_delay_ms(100);
+		_delay_ms(DELAY);
 	}
 	
 }

@@ -71,7 +71,7 @@ int main(void)
 	printHexByte(  ((MCUSR | EXTRF) &0b0010 >> 1) );
 	printString(",");
 	printHexByte(  ((MCUSR | PORF)  &0b0001     ) );
-	printString("\r\nProj 07 v1.1 PowerSleepWDT_");
+	printString("\r\nProj 07 v1.1b PowerSleepWDT_");
 	agora();
 	
 
@@ -270,8 +270,12 @@ ISR(USART_RX_vect)
 	else if(BYTESERIAL=='1') MODO='1';	// MODO 1 aciona sleep 64s/64s/contador de 5m/5m ate 1h
 	else if(BYTESERIAL=='2') MODO='2';	// MODO 2 aciona sleep 64s/64s/contador de 5m/5m sem termino
 	else if(BYTESERIAL=='L')	{		// 'L' gera sequencial de LEDs no MCP23008
+									PORTD |= (1<<PD7);					// liga MOSFET
+									power_twi_enable();
+									//_delay_ms(20);						// espera 20ms para energizar os circuitos
 									liga_mcp23008(); 
 									seqLed_mcp23008(); 
+									PORTD &= ~(1<<PD7);
 								}	// L gera sequencia de LEDs no MCP23008
 }
 
